@@ -10,7 +10,7 @@ export default function App() {
   const getData = async () => {
     const querySnapshot = await getDocs(collection(db, 'test'));
     querySnapshot.forEach((doc) => {
-      setData([...data, doc.data()])
+      setData([doc.data()])
     });
   }
 
