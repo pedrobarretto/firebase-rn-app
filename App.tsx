@@ -1,11 +1,23 @@
 import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, View } from 'react-native';
-import { db } from './config';
+import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { db, auth } from './config';
 import { collection, getDocs, addDoc } from "firebase/firestore"; 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function App() {
+  const [email, setEmail] = useState<string>('Email here');
+  const [password, setPassword] = useState<string>('');
   const [data, setData] = useState<any>([]);
+
+  const signUp = async () => {
+    try {
+      const info = await createUserWithEmailAndPassword(auth, email, password);
+      console.log(info);   
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const getData = async () => {
     const querySnapshot = await getDocs(collection(db, 'test'));
@@ -23,15 +35,13 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {
-        data.map((x: any) => {
-          return (
-            <Text key={x.idade}>{`Nome: ${x.name}. Idade: ${x.idade}`}</Text>
-          )
-        })
-      }
-      <Button title='Pegar Dados' onPress={getData} />
-      <Button title='Add Dados' onPress={addData} />
+      <TextInput 
+        placeholder='Email'
+        value={email}
+        onChangeText={(text) => setEmail(text)}
+        style={styles.input}
+      />
+      <Button title='Create Account' onPress={signUp} />
       <StatusBar style="auto" />
     </View>
   );
@@ -43,5 +53,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  input: {
+    width: 250,
+    height: 44,
+    padding: 10,
+    marginTop: 20,
+    marginBottom: 10,
+    backgroundColor: '#e8e8e8'
   },
 });
