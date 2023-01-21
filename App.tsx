@@ -5,6 +5,7 @@ import { collection, getDocs, addDoc } from "firebase/firestore";
 import { useEffect, useState } from 'react';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
+import {v4 as uuid } from 'uuid';
 
 export default function App() {
   const [email, setEmail] = useState<string>('');
@@ -42,6 +43,12 @@ export default function App() {
   const signUp = async () => {
     try {
       const info = await createUserWithEmailAndPassword(auth, email, password);
+      const id = uuid();
+      await addDoc(collection(db, 'users', id), {
+        email,
+        createdAt: new Date(),
+        id
+      });
       setUser(info);
       console.log(info);   
     } catch (error) {
@@ -70,12 +77,12 @@ export default function App() {
     });
   }
 
-  const addData = async () => {
-    const docRef = await addDoc(collection(db, 'test'), {
-      name: 'Andre Barretto',
-      idade: 18
-    });
-  }
+  // const addData = async () => {
+  //   const docRef = await addDoc(collection(db, 'test'), {
+  //     name: 'Andre Barretto',
+  //     idade: 18
+  //   });
+  // }
 
   return (
     <View style={styles.container}>
