@@ -1,17 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { db, auth } from './config';
-import { collection, getDocs, addDoc } from "firebase/firestore"; 
+import { collection, getDocs, addDoc, doc, getDoc, setDoc } from "firebase/firestore"; 
 import { useEffect, useState } from 'react';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
-import {v4 as uuid } from 'uuid';
+import { User } from './interfaces';
 
 export default function App() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [data, setData] = useState<any>([]);
-  const [user, setUser] = useState<{} | undefined>(undefined);
+  const [user, setUser] = useState<User>({} as User);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -19,10 +19,10 @@ export default function App() {
       console.log('Auth has changed');
       if (user) {
         console.log(`Setting user ${user.email}`);
-        setUser(user);
+        setUser({ email: String(user.email), id: user.uid, createdAt: new Date() });  // FIXME: Fix createdAt prop
       } else {
         console.log('Not logged in')
-        setUser(undefined);
+        setUser({} as User);
       }
     })
   }, []);
@@ -43,13 +43,13 @@ export default function App() {
   const signUp = async () => {
     try {
       const info = await createUserWithEmailAndPassword(auth, email, password);
-      const id = uuid();
-      await addDoc(collection(db, 'users', id), {
+      const createdAt = new Date();
+      await setDoc(doc(db, 'users', info.user.uid), {
         email,
-        createdAt: new Date(),
-        id
+        createdAt,
+        id: info.user.uid
       });
-      setUser(info);
+      setUser({ id: info.user.uid, email, createdAt });
       console.log(info);   
     } catch (error) {
       console.log(error);
@@ -59,7 +59,7 @@ export default function App() {
   const login = async () => {
     try {
       const info = await signInWithEmailAndPassword(auth, email, password);
-      setUser(info);
+      setUser({ id: info.user.uid, email: String(info.user.email), createdAt: new Date() }); // FIXME: Fix createdAt prop
       setError('');
       console.log(info);   
     } catch (error) {
@@ -71,27 +71,44 @@ export default function App() {
   }
 
   const getData = async () => {
-    const querySnapshot = await getDocs(collection(db, 'test'));
-    querySnapshot.forEach((doc) => {
-      setData([doc.data()])
-    });
+    const docRef = doc(db, 'budgets', user.id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+      return docSnap.data().values;
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+      return [];
+    }
   }
 
-  // const addData = async () => {
-  //   const docRef = await addDoc(collection(db, 'test'), {
-  //     name: 'Andre Barretto',
-  //     idade: 18
-  //   });
-  // }
+  const addData = async () => {
+    const oldData = await getData();
+    const data = await setDoc(doc(db, 'budgets', user.id), {
+      values: [
+        ...oldData,
+        {
+          category: 'Payment',
+          name: 'Mutant',
+          type: 'Income',
+          value: 1500
+        }
+      ]
+    });
+    console.log(data);
+  }
 
   return (
     <View style={styles.container}>
       {
         (
-          user !== undefined ?
+          user?.id !== undefined ?
           <>
             <Text>Logado!</Text>
             <Button title='Logout' onPress={() => signOut(auth)} />
+            <Button title='Pegar dados' onPress={() => getData()} />
+            <Button title='Salvar dados' onPress={() => addData()} />
           </>
           :
           <>
