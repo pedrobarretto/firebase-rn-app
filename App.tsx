@@ -1,25 +1,30 @@
 import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { db, auth } from './config';
-import { collection, getDocs, addDoc, doc, getDoc, setDoc } from "firebase/firestore"; 
+import {  doc, getDoc, setDoc } from "firebase/firestore"; 
 import { useEffect, useState } from 'react';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { User } from './interfaces';
+import { CustomButton } from './components'
+import { Budgets } from './interfaces/Budget';
+import { UserProvider } from './context';
+import { useUser } from './hooks';
 
 export default function App() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [data, setData] = useState<any>([]);
-  const [user, setUser] = useState<User>({} as User);
+  const [data, setData] = useState<Budgets[]>([]);
   const [error, setError] = useState('');
+  const { user, setUser } = useUser();
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       console.log('Auth has changed');
       if (user) {
         console.log(`Setting user ${user.email}`);
         setUser({ email: String(user.email), id: user.uid, createdAt: new Date() });  // FIXME: Fix createdAt prop
+        // setData(await getData());
       } else {
         console.log('Not logged in')
         setUser({} as User);
@@ -59,7 +64,6 @@ export default function App() {
   const login = async () => {
     try {
       const info = await signInWithEmailAndPassword(auth, email, password);
-      setUser({ id: info.user.uid, email: String(info.user.email), createdAt: new Date() }); // FIXME: Fix createdAt prop
       setError('');
       console.log(info);   
     } catch (error) {
@@ -70,74 +74,34 @@ export default function App() {
     }
   }
 
-  const getData = async () => {
-    const docRef = doc(db, 'budgets', user.id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
-      return docSnap.data().values;
-    } else {
-      // doc.data() will be undefined in this case
-      console.log("No such document!");
-      return [];
-    }
-  }
-
-  const addData = async () => {
-    const oldData = await getData();
-    const data = await setDoc(doc(db, 'budgets', user.id), {
-      values: [
-        ...oldData,
-        {
-          category: 'Payment',
-          name: 'Mutant',
-          type: 'Income',
-          value: 1500
-        }
-      ]
-    });
-    console.log(data);
-  }
-
   return (
-    <View style={styles.container}>
-      {
-        (
-          user?.id !== undefined ?
-          <>
-            <Text>Logado!</Text>
-            <Button title='Logout' onPress={() => signOut(auth)} />
-            <Button title='Pegar dados' onPress={() => getData()} />
-            <Button title='Salvar dados' onPress={() => addData()} />
-          </>
-          :
-          <>
-            <TextInput
-            placeholder='Email'
-            value={email}
-            onChangeText={(text) => setEmail(text)}
+    <UserProvider>
+      <View style={styles.container}>
+        <TextInput
+          placeholder='Email'
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          style={styles.input}
+          />
+          <TextInput 
+            placeholder='Senha'
+            value={password}
+            onChangeText={(text) => setPassword(text)}
             style={styles.input}
-            />
-            <TextInput 
-              placeholder='Senha'
-              value={password}
-              onChangeText={(text) => setPassword(text)}
-              style={styles.input}
-            />
-            <Button title='Cadastrar' onPress={signUp} />
-            <Button title='Login' onPress={login} />
-            {
-              (
-                error !== '' && (
-                  <Text>{error}</Text>
-                )
+            secureTextEntry={true}
+          />
+          <CustomButton title='Cadastrar' onPress={signUp} isDisabled={email.length === 0 || password.length === 0} />
+          <CustomButton title='Login' onPress={login} isDisabled={email.length === 0 || password.length === 0} />
+          {
+            (
+              error !== '' && (
+                <Text>{error}</Text>
               )
-            }
-          </>
-        )
-      }
-      <StatusBar style="auto" />
-    </View>
+            )
+          }
+        <StatusBar style="auto" />
+      </View>
+    </UserProvider>
   );
 }
 
@@ -161,5 +125,5 @@ const styles = StyleSheet.create({
     textAlign:"left",
     justifyContent:'center',
     marginBottom: '5%',
-  },
+  }
 });
