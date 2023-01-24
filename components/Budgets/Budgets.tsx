@@ -1,16 +1,21 @@
 import { View, Text } from 'react-native';
 import { db, auth } from '../../config';
 import { CustomButton } from '..';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Budgets } from '../../interfaces/Budget';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import uuid from 'react-native-uuid';
 import { useUser } from '../../hooks';
+import { User } from '../../interfaces';
 
-export function BudgetsPage() {
+export function BudgetsPage({ navigation }: any) {
   const [data, setData] = useState<Budgets[]>([]);
   const { user, setUser } = useUser();
+
+  useEffect(() => {
+    startup();
+  }, []);
 
   const getData = async () => {
     const docRef = doc(db, 'budgets', user.id);
@@ -22,6 +27,12 @@ export function BudgetsPage() {
       console.log("No such document!");
       return [];
     }
+  }
+
+  const startup = async () => {
+    const data = await getData();
+    console.log(data);
+    setData(data);
   }
 
   const addData = async () => {
@@ -41,23 +52,30 @@ export function BudgetsPage() {
     console.log(data);
   }
 
+  const logout = () => {
+    setUser({} as User);
+    setData([]);
+    signOut(auth);
+    navigation.navigate('Home');
+  }
+
   return (
     <View>
       {
         data.map((x) => {
           return (
             <View key={x.id}>
-              <Text>{x.name}</Text>
-              <Text>{x.category}</Text>
-              <Text>{x.type}</Text>
-              <Text>{x.value}</Text>
+              <Text key={x.id + '-' + x.name}>{x.name}</Text>
+              <Text key={x.id + '-' + x.category}>{x.category}</Text>
+              <Text key={x.id + '-' + x.type}>{x.type}</Text>
+              <Text key={x.id + '-' + 'value'}>{x.value}</Text>
             </View>
           );
         })
       }
-      <CustomButton title='Logout' onPress={() => signOut(auth)} />
-      <CustomButton title='Pegar dados' onPress={() => getData()} />
-      <CustomButton title='Salvar dados' onPress={() => addData()} />
+      <CustomButton title='Logout' onPress={logout} />
+      <CustomButton title='Pegar dados' onPress={getData} />
+      <CustomButton title='Salvar dados' onPress={addData} />
     </View>
   )
 }
