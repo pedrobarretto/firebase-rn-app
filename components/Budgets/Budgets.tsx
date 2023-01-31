@@ -74,8 +74,6 @@ export function BudgetsPage({ navigation }: any) {
         })
       }
       <CustomButton title='Logout' onPress={logout} />
-      <CustomButton title='Pegar dados' onPress={getData} />
-      <CustomButton title='Salvar dados' onPress={addData} />
     </View>
   )
 }
