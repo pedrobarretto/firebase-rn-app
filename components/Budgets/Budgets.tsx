@@ -8,9 +8,11 @@ import { signOut } from 'firebase/auth';
 import uuid from 'react-native-uuid';
 import { useUser } from '../../hooks';
 import { User } from '../../interfaces';
+import { NewBudget } from '..';
 
 export function BudgetsPage({ navigation }: any) {
   const [data, setData] = useState<Budgets[]>([]);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const { user, setUser } = useUser();
 
   useEffect(() => {
@@ -31,7 +33,6 @@ export function BudgetsPage({ navigation }: any) {
 
   const startup = async () => {
     const data = await getData();
-    console.log(data);
     setData(data);
   }
 
@@ -73,7 +74,10 @@ export function BudgetsPage({ navigation }: any) {
           );
         })
       }
+      <CustomButton title='Novo Gasto' onPress={() => setIsOpen(true)} />
       <CustomButton title='Logout' onPress={logout} />
+
+      <NewBudget isOpen={isOpen} setIsOpen={setIsOpen} />
     </View>
   )
 }

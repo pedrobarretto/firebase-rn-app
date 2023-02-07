@@ -11,7 +11,7 @@ export default function App() {
   return (
     <UserProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerBackVisible: false }}>
+        <Stack.Navigator screenOptions={{ headerBackVisible: false, headerShown: true }}>
             <Stack.Screen name='Home' component={Home} />
             <Stack.Screen name='Goals' component={BudgetsPage} />
         </Stack.Navigator>
