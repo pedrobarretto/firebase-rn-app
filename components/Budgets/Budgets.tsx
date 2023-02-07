@@ -1,11 +1,10 @@
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { db, auth } from '../../config';
 import { CustomButton } from '..';
 import { useEffect, useState } from 'react';
 import { Budgets } from '../../interfaces/Budget';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import uuid from 'react-native-uuid';
 import { useUser } from '../../hooks';
 import { User } from '../../interfaces';
 import { NewBudget } from '..';
@@ -36,21 +35,14 @@ export function BudgetsPage({ navigation }: any) {
     setData(data);
   }
 
-  const addData = async () => {
+  const addData = async (budget: Budgets) => {
     const oldData = await getData();
-    const data = await setDoc(doc(db, 'budgets', user.id), {
+    await setDoc(doc(db, 'budgets', user.id), {
       values: [
         ...oldData,
-        {
-          category: 'Food',
-          name: 'Restaurante mexicano',
-          type: 'Spent',
-          value: 60,
-          id: uuid.v4()
-        }
+        budget
       ]
     });
-    console.log(data);
   }
 
   const logout = () => {
@@ -58,6 +50,12 @@ export function BudgetsPage({ navigation }: any) {
     setData([]);
     signOut(auth);
     navigation.navigate('Home');
+  }
+
+  const saveState = (budget: Budgets) => {
+    setData((x) => {
+      return [...x, budget];
+    })
   }
 
   return (
@@ -74,10 +72,18 @@ export function BudgetsPage({ navigation }: any) {
           );
         })
       }
-      <CustomButton title='Novo Gasto' onPress={() => setIsOpen(true)} />
-      <CustomButton title='Logout' onPress={logout} />
+      <View style={styles.btnBox}>
+        <CustomButton title='Novo Gasto' onPress={() => setIsOpen(true)} />
+        <CustomButton title='Logout' onPress={logout} />
+      </View>
 
-      <NewBudget isOpen={isOpen} setIsOpen={setIsOpen} />
+      <NewBudget isOpen={isOpen} setIsOpen={setIsOpen} addData={addData} saveState={saveState} />
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  btnBox: {
+    bottom: 0
+  }
+});

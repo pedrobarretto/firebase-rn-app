@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
 import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
-import { Budgets } from '../../interfaces/Budget';
+import { Budgets, Type } from '../../interfaces/Budget';
 import { CustomButton } from '../Button/Button';
+import uuid from 'react-native-uuid';
 
 interface Props {
   isOpen: boolean;
   setIsOpen: (x: boolean) => void;
+  addData: (x: Budgets) => Promise<void>;
+  saveState: (x: Budgets) => void;
 }
 
-export function NewBudget({ isOpen, setIsOpen }: Props) {
+export function NewBudget({ isOpen, setIsOpen, addData, saveState }: Props) {
   const [budget, setBudget] = useState<Budgets>({} as Budgets);
+
+  const saveData = async () => {
+    await addData({
+      ...budget,
+      id: String(uuid.v4())
+    });
+    saveState(budget);
+    setIsOpen(false);
+  }
 
   return (
     <View style={styles.centeredView}>
@@ -22,7 +34,7 @@ export function NewBudget({ isOpen, setIsOpen }: Props) {
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text>Novo gasto!</Text>
+            <Text style={{ marginBottom: 10, fontSize: 16, fontWeight: '600' }}>Novo gasto</Text>
             <TextInput
               placeholder='Nome'
               value={budget.name}
@@ -31,22 +43,33 @@ export function NewBudget({ isOpen, setIsOpen }: Props) {
             />
             <TextInput
               placeholder='Categoria'
-              value={budget.name}
-              onChangeText={(text) => setBudget({ ...budget, name: text })}
+              value={budget.category}
+              onChangeText={(text) => setBudget({ ...budget, category: text })}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder='Valor'
+              keyboardType='numeric'
+              value={budget.value}
+              onChangeText={(text) => setBudget({ ...budget, value: Number(text) })}
               style={styles.input}
             />
             <View style={styles.box}>
-              <Pressable style={styles.spentBtn}>
-                <Text>Gasto</Text>
+              <Pressable style={budget.type === Type.Income ? styles.incomeBtnClicked : styles.incomeBtn} onPress={() => {
+                setBudget({ ...budget, type: Type.Income })
+              }}>
+                <Text style={styles.btnText}>Ganho</Text>
               </Pressable>
-              <Pressable>
-                <Text>Ganho</Text>
+              <Pressable style={budget.type === Type.Spent ? styles.spentBtnClicked : styles.spentBtn} onPress={() => {
+                setBudget({ ...budget, type: Type.Spent })
+              }}>
+                <Text style={styles.btnText}>Gasto</Text>
               </Pressable>
             </View>
 
             <CustomButton
               title='Salvar'
-              onPress={() => setIsOpen(false)}/>
+              onPress={saveData}/>
           </View>
         </View>
       </Modal>
@@ -72,8 +95,7 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22
+    alignItems: 'center'
   },
   modalView: {
     margin: 20,
@@ -84,7 +106,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 2
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -96,11 +118,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '50%'
+    width: '50%',
+    paddingBottom: 15
   },
   spentBtn: {
     padding: 10,
+    backgroundColor: '#ff7a7ab6',
+    borderRadius: 10
+  },
+  spentBtnClicked: {
+    padding: 10,
+    backgroundColor: '#ff5e5ee9',
+    borderRadius: 10
+  },
+  incomeBtn: {
+    padding: 10,
     backgroundColor: '#7aff7fb6',
     borderRadius: 10
+  },
+  incomeBtnClicked: {
+    padding: 10,
+    backgroundColor: '#5eff64e9',
+    borderRadius: 10
+  },
+  btnText: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: '600'
   }
 });
