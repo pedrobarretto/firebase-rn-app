@@ -20,6 +20,12 @@ export function NewBudget({ isOpen, setIsOpen, addData, saveState }: Props) {
       id: String(uuid.v4())
     });
     saveState(budget);
+    setBudget({} as Budgets);
+    setIsOpen(false);
+  }
+
+  const closeModal = () => {
+    setBudget({} as Budgets);
     setIsOpen(false);
   }
 
@@ -34,6 +40,11 @@ export function NewBudget({ isOpen, setIsOpen, addData, saveState }: Props) {
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
+
+            <Pressable style={styles.closeBtn} onPress={closeModal}>
+              <Text style={styles.closeBtnText}>X</Text>
+            </Pressable>
+
             <Text style={{ marginBottom: 10, fontSize: 16, fontWeight: '600' }}>Novo gasto</Text>
             <TextInput
               placeholder='Nome'
@@ -78,6 +89,22 @@ export function NewBudget({ isOpen, setIsOpen, addData, saveState }: Props) {
 }
 
 const styles = StyleSheet.create({
+  closeBtn: {
+    backgroundColor: '#ff5e5e',
+    borderRadius: 50,
+    width: 30,
+    height: 30,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 15,
+    top: 10
+  },
+  closeBtnText: {
+    color: '#fff',
+    fontWeight: '600'
+  },
   input: {
     padding:10,
     backgroundColor:'#7f7f7',

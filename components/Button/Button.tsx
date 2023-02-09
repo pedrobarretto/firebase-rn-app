@@ -1,13 +1,13 @@
-import React from 'react';
-import { Text, StyleSheet, Pressable } from 'react-native';
+import React, { ComponentPropsWithRef } from 'react';
+import { Text, StyleSheet, Pressable, ButtonProps } from 'react-native';
 
-interface ButtonProps {
+interface Props extends ButtonProps {
   onPress: () => void;
   title: string;
   isDisabled?: boolean;
 }
 
-export function CustomButton({ onPress, title, isDisabled=false }: ButtonProps) {
+export function CustomButton({ onPress, title, isDisabled=false }: Props) {
   return (
     <Pressable style={isDisabled ? styles.disabledButton : styles.button} onPress={onPress} disabled={isDisabled}>
       <Text style={styles.text}>{title}</Text>

@@ -22,7 +22,7 @@ export function Home({ navigation }: any) {
         console.log(`Setting user ${user.email}`);
         // FIXME: Fix createdAt prop
         setUser({ email: String(user.email), id: user.uid, createdAt: new Date() });
-        navigation.navigate('Goals');
+        navigation.navigate('Finanças');
       } else {
         console.log('Not logged in')
         setUser({} as User);

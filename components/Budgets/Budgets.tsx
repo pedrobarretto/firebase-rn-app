@@ -8,6 +8,7 @@ import { signOut } from 'firebase/auth';
 import { useUser } from '../../hooks';
 import { User } from '../../interfaces';
 import { NewBudget } from '..';
+import { Budget } from './Budget';
 
 export function BudgetsPage({ navigation }: any) {
   const [data, setData] = useState<Budgets[]>([]);
@@ -59,16 +60,11 @@ export function BudgetsPage({ navigation }: any) {
   }
 
   return (
-    <View>
+    <View style={styles.container}>
       {
         data.map((x) => {
           return (
-            <View key={x.id}>
-              <Text key={x.id + '-' + x.name}>{x.name}</Text>
-              <Text key={x.id + '-' + x.category}>{x.category}</Text>
-              <Text key={x.id + '-' + x.type}>{x.type}</Text>
-              <Text key={x.id + '-' + 'value'}>{x.value}</Text>
-            </View>
+            <Budget budget={x} />
           );
         })
       }
@@ -83,7 +79,11 @@ export function BudgetsPage({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    
+  },
   btnBox: {
-    bottom: 0
+    margin: 10,
+    gap: 10
   }
 });
