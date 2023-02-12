@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { db, auth } from '../../config';
 import { CustomButton } from '..';
 import { useEffect, useState } from 'react';
@@ -61,18 +61,22 @@ export function BudgetsPage({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      {
-        data.map((x) => {
-          return (
-            <Budget budget={x} />
-          );
-        })
-      }
-      <View style={styles.btnBox}>
-        <CustomButton title='Novo Gasto' onPress={() => setIsOpen(true)} />
-        <CustomButton title='Logout' onPress={logout} />
+      <View>
+        {
+          data.map((x) => {
+            return (
+              <Budget key={x.id} budget={x} />
+            );
+          })
+        }
+      </View>
+      <View>
+        <Pressable style={styles.floatingMenuButtonStyle} onPress={() => setIsOpen(true)}>
+          <Text style={styles.btnText}>+</Text>
+        </Pressable>
       </View>
 
+      {/* <CustomButton title='Logout' onPress={logout} /> */}
       <NewBudget isOpen={isOpen} setIsOpen={setIsOpen} addData={addData} saveState={saveState} />
     </View>
   )
@@ -82,8 +86,28 @@ const styles = StyleSheet.create({
   container: {
     
   },
-  btnBox: {
-    margin: 10,
-    gap: 10
+  mainConatinerStyle: {
+    flexDirection: 'column',
+    flex: 1,
+  },
+  floatingMenuButtonStyle: {
+    position: 'absolute',
+    bottom: 0,
+    top: 170,
+    right: 10,
+    elevation: 3,
+    backgroundColor: 'rgb(227, 94, 0)',
+    padding: 10,
+    borderRadius: 50,
+    width: 60,
+    height: 60,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  btnText: {
+    color: '#fff',
+    fontWeight: '500',
+    fontSize: 32,
   }
 });

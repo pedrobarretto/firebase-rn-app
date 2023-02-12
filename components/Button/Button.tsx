@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: 'rgb(227, 94, 0)',
+    backgroundColor: 'rgb(227, 94, 0)'
   },
   disabledButton: {
     alignItems: 'center',
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: 'rgb(127, 127, 127)',
+    backgroundColor: 'rgb(127, 127, 127)'
   },
   text: {
     fontSize: 16,
