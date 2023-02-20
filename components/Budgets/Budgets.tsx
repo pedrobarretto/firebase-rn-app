@@ -1,113 +1,68 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  FlatList
+} from 'react-native';
 import { db, auth } from '../../config';
 import { CustomButton } from '..';
 import { useEffect, useState } from 'react';
 import { Budgets } from '../../interfaces/Budget';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import { useUser } from '../../hooks';
+import { useBudgets, useUser } from '../../hooks';
 import { User } from '../../interfaces';
-import { NewBudget } from '..';
 import { Budget } from './Budget';
+import { getData, HOME } from '../../utils';
 
 export function BudgetsPage({ navigation }: any) {
-  const [data, setData] = useState<Budgets[]>([]);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const { user, setUser } = useUser();
+  const { budgets, setBudgets } = useBudgets();
 
   useEffect(() => {
     startup();
   }, []);
 
-  const getData = async () => {
-    const docRef = doc(db, 'budgets', user.id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
-      return docSnap.data().values;
-    } else {
-      console.log("No such document!");
-      return [];
-    }
-  }
-
   const startup = async () => {
-    const data = await getData();
-    setData(data);
-  }
-
-  const addData = async (budget: Budgets) => {
-    const oldData = await getData();
-    await setDoc(doc(db, 'budgets', user.id), {
-      values: [
-        ...oldData,
-        budget
-      ]
-    });
+    const data = await getData(user.id);
+    setBudgets(data);
   }
 
   const logout = () => {
     setUser({} as User);
-    setData([]);
+    setBudgets([]);
     signOut(auth);
-    navigation.navigate('Home');
-  }
-
-  const saveState = (budget: Budgets) => {
-    setData((x) => {
-      return [...x, budget];
-    })
+    navigation.navigate(HOME);
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View>
-        {
-          data.map((x) => {
-            return (
-              <Budget key={x.id} budget={x} />
-            );
-          })
-        }
-      </View>
-      <View>
-        <Pressable style={styles.floatingMenuButtonStyle} onPress={() => setIsOpen(true)}>
-          <Text style={styles.btnText}>+</Text>
-        </Pressable>
+        <FlatList
+          data={budgets}
+          renderItem={({item}) => <Budget budget={item} />}
+          keyExtractor={item => item.id}
+          ListFooterComponent={<View style={{height: 20}}/>}
+        />
       </View>
 
       {/* <CustomButton title='Logout' onPress={logout} /> */}
-      <NewBudget isOpen={isOpen} setIsOpen={setIsOpen} addData={addData} saveState={saveState} />
-    </View>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    
+    flex: 1,
+    paddingTop: StatusBar.currentHeight
+  },
+  scrollView: {
+    backgroundColor: 'pink'
   },
   mainConatinerStyle: {
     flexDirection: 'column',
     flex: 1,
-  },
-  floatingMenuButtonStyle: {
-    position: 'absolute',
-    bottom: 0,
-    top: 170,
-    right: 10,
-    elevation: 3,
-    backgroundColor: 'rgb(227, 94, 0)',
-    padding: 10,
-    borderRadius: 50,
-    width: 60,
-    height: 60,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  btnText: {
-    color: '#fff',
-    fontWeight: '500',
-    fontSize: 32,
   }
 });

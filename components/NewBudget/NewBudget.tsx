@@ -3,148 +3,90 @@ import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-nativ
 import { Budgets, Type } from '../../interfaces/Budget';
 import { CustomButton } from '../Button/Button';
 import uuid from 'react-native-uuid';
+import { useBudgets, useUser } from '../../hooks';
+import { addData, BUDGETS } from '../../utils';
+import * as rootNavigation from '../../utils';
 
-interface Props {
-  isOpen: boolean;
-  setIsOpen: (x: boolean) => void;
-  addData: (x: Budgets) => Promise<void>;
-  saveState: (x: Budgets) => void;
-}
-
-export function NewBudget({ isOpen, setIsOpen, addData, saveState }: Props) {
+export function NewBudget() {
   const [budget, setBudget] = useState<Budgets>({} as Budgets);
+  const { budgets, setBudgets } = useBudgets();
+  const { user } = useUser();
 
   const saveData = async () => {
     await addData({
       ...budget,
       id: String(uuid.v4())
-    });
-    saveState(budget);
+    }, user.id);
+    setBudgets([...budgets, budget]);
     setBudget({} as Budgets);
-    setIsOpen(false);
-  }
-
-  const closeModal = () => {
-    setBudget({} as Budgets);
-    setIsOpen(false);
+    rootNavigation.navigate(BUDGETS);
   }
 
   return (
-    <View style={styles.centeredView}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isOpen}
-        onRequestClose={() => {
-          setIsOpen(false);
+    <View style={styles.container}>
+      <Text style={{ marginBottom: 10, fontSize: 16, fontWeight: '600' }}>Novo registro</Text>
+      <TextInput
+        placeholder='Nome'
+        value={budget.name}
+        onChangeText={(text) => setBudget({ ...budget, name: text })}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder='Categoria'
+        value={budget.category}
+        onChangeText={(text) => setBudget({ ...budget, category: text })}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder='Valor'
+        keyboardType='numeric'
+        value={budget.value?.toString()}
+        onChangeText={(text) => setBudget({ ...budget, value: Number(text) })}
+        style={styles.input}
+      />
+      <View style={styles.box}>
+        <Pressable style={budget.type === Type.Income ? styles.incomeBtnClicked : styles.incomeBtn} onPress={() => {
+          setBudget({ ...budget, type: Type.Income })
         }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
+          <Text style={styles.btnText}>Ganho</Text>
+        </Pressable>
+        <Pressable style={budget.type === Type.Spent ? styles.spentBtnClicked : styles.spentBtn} onPress={() => {
+          setBudget({ ...budget, type: Type.Spent })
+        }}>
+          <Text style={styles.btnText}>Gasto</Text>
+        </Pressable>
+      </View>
 
-            <Pressable style={styles.closeBtn} onPress={closeModal}>
-              <Text style={styles.closeBtnText}>X</Text>
-            </Pressable>
-
-            <Text style={{ marginBottom: 10, fontSize: 16, fontWeight: '600' }}>Novo gasto</Text>
-            <TextInput
-              placeholder='Nome'
-              value={budget.name}
-              onChangeText={(text) => setBudget({ ...budget, name: text })}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder='Categoria'
-              value={budget.category}
-              onChangeText={(text) => setBudget({ ...budget, category: text })}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder='Valor'
-              keyboardType='numeric'
-              value={budget.value}
-              onChangeText={(text) => setBudget({ ...budget, value: Number(text) })}
-              style={styles.input}
-            />
-            <View style={styles.box}>
-              <Pressable style={budget.type === Type.Income ? styles.incomeBtnClicked : styles.incomeBtn} onPress={() => {
-                setBudget({ ...budget, type: Type.Income })
-              }}>
-                <Text style={styles.btnText}>Ganho</Text>
-              </Pressable>
-              <Pressable style={budget.type === Type.Spent ? styles.spentBtnClicked : styles.spentBtn} onPress={() => {
-                setBudget({ ...budget, type: Type.Spent })
-              }}>
-                <Text style={styles.btnText}>Gasto</Text>
-              </Pressable>
-            </View>
-
-            <CustomButton
-              title='Salvar'
-              onPress={saveData}/>
-          </View>
-        </View>
-      </Modal>
+      <CustomButton
+        title='Salvar'
+        onPress={saveData}/>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  closeBtn: {
-    backgroundColor: '#ff5e5e',
-    borderRadius: 50,
-    width: 30,
-    height: 30,
+  container: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    right: 15,
-    top: 10
-  },
-  closeBtnText: {
-    color: '#fff',
-    fontWeight: '600'
+    flex: 1,
   },
   input: {
     padding:10,
-    backgroundColor:'#7f7f7',
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: '#111',
+    backgroundColor:'#fff',
     borderRadius:5,
     paddingVertical: 8,
-    width:'60%',
+    width:'90%',
     alignSelf:'center',
     textAlign:"left",
     justifyContent:'center',
     marginBottom: '5%',
   },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: '90%'
-  },
   box: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     width: '50%',
     paddingBottom: 15
   },

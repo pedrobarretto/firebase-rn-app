@@ -25,6 +25,7 @@ export function Budget({ budget }: Props) {
 
 const styles = StyleSheet.create({
   box: {
+    flex: 1,
     padding: 10,
     display: 'flex',
     alignContent: 'center',

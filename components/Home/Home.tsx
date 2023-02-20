@@ -8,6 +8,7 @@ import { CustomButton } from '..';
 import { auth, db } from '../../config';
 import { useUser } from '../../hooks';
 import { User } from '../../interfaces';
+import { BUDGETS } from '../../utils';
 
 export function Home({ navigation }: any) {
   const [email, setEmail] = useState<string>('');
@@ -22,7 +23,7 @@ export function Home({ navigation }: any) {
         console.log(`Setting user ${user.email}`);
         // FIXME: Fix createdAt prop
         setUser({ email: String(user.email), id: user.uid, createdAt: new Date() });
-        navigation.navigate('Finanças');
+        navigation.navigate(BUDGETS);
       } else {
         console.log('Not logged in')
         setUser({} as User);
