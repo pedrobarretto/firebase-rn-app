@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
 import { Budgets, Type } from '../../interfaces/Budget';
 import { CustomButton } from '../Button/Button';
 import uuid from 'react-native-uuid';
 import { useBudgets, useUser } from '../../hooks';
-import { addData, BUDGETS } from '../../utils';
+import { addData, BUDGETS, emptyBudget } from '../../utils';
 import * as rootNavigation from '../../utils';
+import { Entypo } from '@expo/vector-icons';
 
 export function NewBudget() {
-  const [budget, setBudget] = useState<Budgets>({} as Budgets);
+  const [budget, setBudget] = useState<Budgets>(emptyBudget);
   const { budgets, setBudgets } = useBudgets();
   const { user } = useUser();
+  const [isDisabled, setIsDisabled] = useState(true);
 
   const saveData = async () => {
     await addData({
@@ -18,9 +20,45 @@ export function NewBudget() {
       id: String(uuid.v4())
     }, user.id);
     setBudgets([...budgets, budget]);
-    setBudget({} as Budgets);
+    setBudget(emptyBudget);
     rootNavigation.navigate(BUDGETS);
   }
+
+  const checkIsCanSave = () => {
+    let canSave = false;
+    const { category, name, type, value } = budget;
+    
+    if (
+      name.length !== 0 &&
+      category.length !== 0 &&
+      category.length !== 0 &&
+      type === Type.Income || type === Type.Spent &&
+      Number(value) > 0
+    ) canSave = true;
+
+    console.log(canSave);
+
+    setIsDisabled(canSave);
+  }
+
+  useEffect(() => {
+    let canSave = true;
+    const { category, name, type, value } = budget;
+    
+    if (
+      name.length !== 0 &&
+      category.length !== 0 &&
+      category.length !== 0 &&
+      type === Type.Income || type === Type.Spent &&
+      value >= 1
+    ) canSave = false;
+
+    setIsDisabled(canSave);
+  }, [budget]);
+
+  useEffect(() => {
+    console.log('isDisabled: ', isDisabled);
+  }, [isDisabled]);
 
   return (
     <View style={styles.container}>
@@ -59,7 +97,12 @@ export function NewBudget() {
 
       <CustomButton
         title='Salvar'
-        onPress={saveData}/>
+        onPress={saveData}
+        btnStyle={{ backgroundColor: '#e35e00' }}
+        textStyle={{ color: '#fff' }}
+        icon={<Entypo name='save' size={24} color='#fff' />}
+        isDisabled={isDisabled}
+      />
     </View>
   );
 }

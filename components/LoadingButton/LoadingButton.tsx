@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, ButtonProps, ViewStyle, TouchableOpacity, StyleSheet, TextStyle } from 'react-native';
 
 interface Props extends ButtonProps {
-  onPress: () => void;
+  onPress: () => Promise<void>;
   title: string;
   isDisabled?: boolean;
   icon?: any;
@@ -17,11 +17,16 @@ export function CustomButton({
   icon,
   btnStyle,
   textStyle }: Props) {
+
+  const handlePress = async () => {
+    await onPress();
+  }
+
   return (
     <TouchableOpacity
       disabled={isDisabled}
       style={isDisabled ? [styles.button, styles.disabled] : [styles.button, btnStyle]}
-      onPress={onPress}
+      onPress={handlePress}
     >
       {icon}
       <Text style={[styles.buttonText, textStyle]}>{title}</Text>

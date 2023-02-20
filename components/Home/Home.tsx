@@ -3,7 +3,7 @@ import { FirebaseError } from 'firebase/app';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { CustomButton } from '..';
 import { auth, db } from '../../config';
 import { useUser } from '../../hooks';
@@ -34,11 +34,11 @@ export function Home({ navigation }: any) {
   function mapAuthCodeToMessage(authCode: string) {
     switch (authCode) {
       case 'auth/wrong-password':
-        return 'Senha incorreta';
+        return 'Email ou senha incorretos';
       case 'auth/invalid-email':
-        return 'Email incorreto ou nao existe';
+        return 'Email ou senha incorretos';
       case 'auth/too-many-requests':
-        return 'Esse usuario fez muitas requisicoes, aguarde um pouco ou tente entrar com outra conta'
+        return 'Esse usuário fez muitas requisições, aguarde um pouco ou tente entrar com outra conta'
       default:
         return 'Erro ao realizar login';
     }
@@ -74,53 +74,81 @@ export function Home({ navigation }: any) {
   }
   
   return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder='Email'
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-        style={styles.input}
+    <KeyboardAvoidingView
+      style={styles.keyBoardAvoidContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={styles.container}>
+        <TextInput
+          placeholder='Email'
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          style={styles.input}
+          />
+        <TextInput 
+          placeholder='Senha'
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+          style={styles.input}
+          secureTextEntry={true}
         />
-      <TextInput 
-        placeholder='Senha'
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-        style={styles.input}
-        secureTextEntry={true}
-      />
-      <CustomButton title='Cadastrar' onPress={signUp} isDisabled={email.length === 0 || password.length === 0} />
-      <CustomButton title='Login' onPress={login} isDisabled={email.length === 0 || password.length === 0} />
-      {
-        (
-          error !== '' && (
-            <Text>{error}</Text>
+        <CustomButton
+          title='Cadastrar'
+          onPress={signUp}
+          isDisabled={email.length === 0 || password.length === 0}
+          btnStyle={{ backgroundColor: '#e35e00'  }}
+          textStyle={{ color: '#fff' }}
+        />
+        <CustomButton
+          title='Login'
+          onPress={login}
+          isDisabled={email.length === 0 || password.length === 0}
+          btnStyle={{ backgroundColor: '#e35e00'  }}
+          textStyle={{ color: '#fff' }}
+        />
+        {
+          (
+            error !== '' && (
+              <Text>{error}</Text>
+            )
           )
-        )
-      }
-      <StatusBar style="auto" />
-    </View>
+        }
+        <StatusBar style="auto" />
+      </View>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '90%'
+  },
+  keyBoardAvoidContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   input: {
     padding:10,
-    backgroundColor:'#7f7f7',
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: '#111',
+    backgroundColor: '#fff',
     borderRadius:5,
     paddingVertical: 8,
-    width:'60%',
+    width:'80%',
+    height: 50,
     alignSelf:'center',
     textAlign:"left",
     justifyContent:'center',
     marginBottom: '5%',
+    elevation: Platform.OS === 'ios' ? 2 : 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.84,
   }
 });

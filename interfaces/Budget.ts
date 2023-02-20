@@ -8,5 +8,6 @@ export interface Budgets {
 
 export enum Type {
   Income = 'Income',
-  Spent = 'Spent'
+  Spent = 'Spent',
+  None = 'None'
 }
