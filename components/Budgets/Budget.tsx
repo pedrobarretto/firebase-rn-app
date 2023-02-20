@@ -1,25 +1,58 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { useBudgets, useUser } from '../../hooks';
 import { Budgets, Type } from '../../interfaces';
-import { currencyFormat, formatType } from '../../utils';
+import { currencyFormat, deleteBudget, formatType } from '../../utils';
+import { ConfirmDelete } from '../ConfirmDelete/ConfirmDelete';
 
 interface Props {
   budget: Budgets;
 }
 
 export function Budget({ budget }: Props) {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const { user } = useUser();
+  const { budgets, setBudgets } = useBudgets();
+
+  const handleLongPress = () => {
+    console.log('Long press');
+    setIsDeleteModalOpen(true);
+  }
+
+  const onCancel = () => {
+    setIsDeleteModalOpen(false);
+  }
+
+  const onConfirm = async () => {
+    await deleteBudget(budget.id, user.id);
+    const newBudgets = budgets.filter((x: Budgets) => x.id !== budget.id);
+    setBudgets(newBudgets);
+    setIsDeleteModalOpen(false);
+  }
+
   return (
-    <View key={budget.id} style={styles.box}>
-      <View style={styles.collumn}>
-        <Text style={styles.boldText}>{budget.name}</Text>
-        <Text style={{ color: '#7d7d7d' }}>{budget.category}</Text>
-      </View>
-      <View style={styles.collumn}>
-        <View style={budget.type === Type.Income ? styles.income : styles.spent}>
-          <Text style={{ color: '#fff', fontWeight: '600' }}>{formatType(budget.type)}</Text>
+    <>
+      <Pressable key={budget.id} style={styles.box} onLongPress={handleLongPress}>
+        <View style={styles.collumn}>
+          <Text style={styles.boldText}>{budget.name}</Text>
+          <Text style={{ color: '#7d7d7d' }}>{budget.category}</Text>
         </View>
-        <Text style={styles.boldText}>{currencyFormat(budget.value)}</Text>
-      </View>
-    </View>
+        <View style={styles.collumn}>
+          <View style={budget.type === Type.Income ? styles.income : styles.spent}>
+            <Text style={{ color: '#fff', fontWeight: '600' }}>{formatType(budget.type)}</Text>
+          </View>
+          <Text style={styles.boldText}>{currencyFormat(budget.value)}</Text>
+        </View>
+      </Pressable>
+
+      <ConfirmDelete
+        isOpen={isDeleteModalOpen}
+        id={budget.id}
+        onCancel={onCancel}
+        text={`Você tem certeza que quer deletar o ${formatType(budget.type)} "${budget.name}"?`}
+        onConfirm={onConfirm}
+      />
+    </>
   )
 };
 

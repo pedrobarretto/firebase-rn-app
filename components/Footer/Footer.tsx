@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
-import { BUDGETS, HOME, NEW_BUDGETS } from '../../utils';
+import { BUDGETS, NEW_BUDGETS, SETTINGS } from '../../utils';
 import * as rootNavigation from '../../utils';
 
 export function Footer() {
@@ -19,7 +19,7 @@ export function Footer() {
         </Pressable>
       </View>
       <View>
-        <Pressable onPress={() => rootNavigation.navigate(BUDGETS)}>
+        <Pressable onPress={() => rootNavigation.navigate(SETTINGS)}>
           <Ionicons name='settings' size={30} color='black' />
         </Pressable>
       </View>

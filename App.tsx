@@ -2,8 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import { BudgetsProvider, UserProvider } from './context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { BudgetsPage, Footer, Home, NewBudget } from './components';
-import { BUDGETS, HOME, navigationRef, NEW_BUDGETS } from './utils';
+import { BudgetsPage, Footer, Home, NewBudget, Settings } from './components';
+import { BUDGETS, HOME, navigationRef, NEW_BUDGETS, SETTINGS } from './utils';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +18,7 @@ export default function App() {
               <Stack.Screen name={HOME} component={Home} />
               <Stack.Screen name={BUDGETS} component={BudgetsPage} />
               <Stack.Screen name={NEW_BUDGETS} component={NewBudget} />
+              <Stack.Screen name={SETTINGS} component={Settings} />
           </Stack.Navigator>
           
           <Footer />
