@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { BudgetsProvider, UserProvider } from './context';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { BudgetsPage, Footer, Home, NewBudget, Settings } from './components';
 import { BUDGETS, HOME, navigationRef, NEW_BUDGETS, SETTINGS } from './utils';

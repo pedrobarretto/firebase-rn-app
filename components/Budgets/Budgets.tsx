@@ -1,21 +1,14 @@
 import {
   View,
-  Text,
   StyleSheet,
   SafeAreaView,
   StatusBar,
   FlatList
 } from 'react-native';
-import { db, auth } from '../../config';
-import { CustomButton } from '..';
-import { useEffect, useState } from 'react';
-import { Budgets } from '../../interfaces/Budget';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
+import { useEffect } from 'react';
 import { useBudgets, useUser } from '../../hooks';
-import { User } from '../../interfaces';
 import { Budget } from './Budget';
-import { getData, HOME } from '../../utils';
+import { getData } from '../../utils';
 
 export function BudgetsPage({ navigation }: any) {
   const { user, setUser } = useUser();
@@ -28,13 +21,6 @@ export function BudgetsPage({ navigation }: any) {
   const startup = async () => {
     const data = await getData(user.id);
     setBudgets(data);
-  }
-
-  const logout = () => {
-    setUser({} as User);
-    setBudgets([]);
-    signOut(auth);
-    navigation.navigate(HOME);
   }
 
   return (
