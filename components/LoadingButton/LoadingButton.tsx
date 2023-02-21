@@ -1,23 +1,35 @@
 import React from 'react';
-import { Text, ButtonProps, ViewStyle, TouchableOpacity, StyleSheet, TextStyle } from 'react-native';
+import { Text,
+  ButtonProps,
+  ViewStyle,
+  TouchableOpacity,
+  StyleSheet,
+  TextStyle,
+  ActivityIndicator
+} from 'react-native';
 
 interface Props extends ButtonProps {
   onPress: () => Promise<void>;
   title: string;
   isDisabled?: boolean;
   icon?: any;
-  btnStyle?: ViewStyle;
+  btnStyle?: any;
   textStyle?: TextStyle;
+  isLoading: boolean;
+  onlyPropsStyle?: boolean;
 }
 
-export function CustomButton({
-  onPress,
-  title,
-  isDisabled,
-  icon,
-  btnStyle,
-  textStyle }: Props) {
-
+export function LoadingButton(
+  {
+    onPress,
+    title,
+    isDisabled,
+    icon,
+    btnStyle,
+    textStyle,
+    isLoading,
+    onlyPropsStyle
+  }: Props) {
   const handlePress = async () => {
     await onPress();
   }
@@ -25,11 +37,23 @@ export function CustomButton({
   return (
     <TouchableOpacity
       disabled={isDisabled}
-      style={isDisabled ? [styles.button, styles.disabled] : [styles.button, btnStyle]}
+      style={
+        isDisabled ?
+        [styles.button, styles.disabled] :
+        [onlyPropsStyle ? btnStyle : styles.button, btnStyle]
+      }
       onPress={handlePress}
     >
-      {icon}
-      <Text style={[styles.buttonText, textStyle]}>{title}</Text>
+      {
+        isLoading ? (
+          <ActivityIndicator size='large' color='#fff' />
+        ) : (
+          <>
+            {icon}
+            <Text style={[styles.buttonText, textStyle]}>{title}</Text>
+          </>
+        )
+      }
     </TouchableOpacity>
   );
 }
@@ -54,7 +78,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   buttonText: {
-    marginLeft: 10,
     fontSize: 18,
     fontWeight: 'bold',
   },

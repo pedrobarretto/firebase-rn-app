@@ -1,5 +1,12 @@
 import React from 'react';
-import { Text, ButtonProps, ViewStyle, TouchableOpacity, StyleSheet, TextStyle } from 'react-native';
+import {
+  Text,
+  ButtonProps,
+  ViewStyle,
+  TouchableOpacity,
+  StyleSheet,
+  TextStyle
+} from 'react-native';
 
 interface Props extends ButtonProps {
   onPress: () => void;

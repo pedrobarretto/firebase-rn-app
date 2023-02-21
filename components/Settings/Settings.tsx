@@ -27,10 +27,6 @@ export function Settings() {
     rootNavigation.navigate(HOME);
   }
 
-  const handleDeleteAccount = () => {
-    console.log('Delete Account pressed');
-  };
-
   const handleReportBug = async (text: string) => {
     const documentRef = collection(db, 'bugs');
     await addDoc(documentRef, {
@@ -52,6 +48,14 @@ export function Settings() {
     Linking.openURL('https://www.linkedin.com/in/pedrobarretto/');
   };
 
+  const handleDeleteRecords = async () => {
+    console.log('Deleting records...');
+  }
+
+  const handleDeleteAccount = () => {
+    console.log('Delete Account pressed');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
@@ -65,14 +69,14 @@ export function Settings() {
         <Feather name='log-out' size={24} color='black' />
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => setIsBugModalOpen(true)}>
-        <Entypo name='bug' size={24} color='black' />
-        <Text style={styles.buttonText}>Reportar um Bug</Text>
+      <TouchableOpacity style={{ ...styles.button, backgroundColor: '#028e4d' }} onPress={() => setIsBugModalOpen(true)}>
+        <Entypo name='bug' size={24} color='#fff' />
+        <Text style={{ ...styles.buttonText, color: '#fff' }}>Reportar um Bug</Text>
       </TouchableOpacity>
       <TouchableOpacity style={{
         ...styles.button,
         backgroundColor: '#e35e00'
-      }} onPress={() => setIsBugModalOpen(true)}>
+      }} onPress={handleDeleteRecords}>
         <Entypo name='new-message' size={24} color='#fff' />
         <Text style={{ ...styles.buttonText, color: '#fff' }}>Recomeçar registros</Text>
       </TouchableOpacity>

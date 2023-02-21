@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { LoadingButton } from '../LoadingButton/LoadingButton';
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -10,9 +11,12 @@ interface ConfirmDeleteModalProps {
 }
 
 export function ConfirmDelete({ id, text, onConfirm, onCancel, isOpen }: ConfirmDeleteModalProps) {
-  
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleConfirm = async () => {
+    setIsLoading(true);
     await onConfirm(id);
+    setIsLoading(false);
   }
   
   return (
@@ -25,11 +29,14 @@ export function ConfirmDelete({ id, text, onConfirm, onCancel, isOpen }: Confirm
             <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onCancel}>
               <Text style={styles.buttonText}>Não</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.confirmButton]}
-              onPress={handleConfirm}>
-              <Text style={styles.buttonText}>Sim</Text>
-            </TouchableOpacity>
+            <LoadingButton
+              btnStyle={[styles.button, styles.confirmButton]}
+              textStyle={{ color: '#fff' }}
+              onPress={handleConfirm}
+              title='Sim'
+              isLoading={isLoading}
+              onlyPropsStyle={true}
+            />
           </View>
         </View>
       </View>
@@ -82,7 +89,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CCCCCC',
   },
   confirmButton: {
-    backgroundColor: 'red',
+    backgroundColor: 'red'
   },
   buttonText: {
     color: 'white',

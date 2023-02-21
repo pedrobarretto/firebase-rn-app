@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { LoadingButton } from '../LoadingButton/LoadingButton';
 
 type Props = {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (bugDescription: string) => void;
+  onSubmit: (bugDescription: string) => Promise<void>;
 };
 
 export function BugReportModal({ visible, onClose, onSubmit }: Props) {
   const [bugDescription, setBugDescription] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = () => {
-    onSubmit(bugDescription);
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    await onSubmit(bugDescription);
     setBugDescription('');
+    setIsLoading(false);
   };
 
   return (
@@ -31,9 +35,14 @@ export function BugReportModal({ visible, onClose, onSubmit }: Props) {
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <Text style={styles.buttonText}>Fechar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Reportar bug</Text>
-            </TouchableOpacity>
+            <LoadingButton
+              title='Reportar bug'
+              onPress={handleSubmit}
+              isLoading={isLoading}
+              onlyPropsStyle={true}
+              btnStyle={styles.submitButton}
+              textStyle={styles.buttonText}
+            />
           </View>
         </View>
       </View>
@@ -82,7 +91,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: '#ff9800',
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 5,
   },

@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndP
 import { doc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform } from 'react-native';
-import { CustomButton } from '..';
+import { LoadingButton } from '..';
 import { auth, db } from '../../config';
 import { useUser } from '../../hooks';
 import { User } from '../../interfaces';
@@ -15,6 +15,8 @@ export function Home({ navigation }: any) {
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState('');
   const { user, setUser } = useUser();
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [isRegisterLoading, setIsRegisterLoading] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -46,6 +48,7 @@ export function Home({ navigation }: any) {
 
   const signUp = async () => {
     try {
+      setIsRegisterLoading(true);
       const info = await createUserWithEmailAndPassword(auth, email, password);
       const createdAt = new Date();
       await setDoc(doc(db, 'users', info.user.uid), {
@@ -55,6 +58,7 @@ export function Home({ navigation }: any) {
       });
       setUser({ id: info.user.uid, email, createdAt });
       console.log(info);
+      setIsRegisterLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -62,9 +66,10 @@ export function Home({ navigation }: any) {
 
   const login = async () => {
     try {
+      setIsLoginLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
+      setIsLoginLoading(false);
       setError('');
-      
     } catch (error) {
       if (error instanceof FirebaseError) {
         console.log(error.code);
@@ -92,19 +97,21 @@ export function Home({ navigation }: any) {
           style={styles.input}
           secureTextEntry={true}
         />
-        <CustomButton
+        <LoadingButton
           title='Cadastrar'
           onPress={signUp}
           isDisabled={email.length === 0 || password.length === 0}
           btnStyle={{ backgroundColor: '#e35e00'  }}
           textStyle={{ color: '#fff' }}
+          isLoading={isRegisterLoading}
         />
-        <CustomButton
+        <LoadingButton
           title='Login'
           onPress={login}
           isDisabled={email.length === 0 || password.length === 0}
           btnStyle={{ backgroundColor: '#e35e00'  }}
           textStyle={{ color: '#fff' }}
+          isLoading={isLoginLoading}
         />
         {
           (

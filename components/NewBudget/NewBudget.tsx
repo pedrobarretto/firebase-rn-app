@@ -1,44 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
 import { Budgets, Type } from '../../interfaces/Budget';
-import { CustomButton } from '../Button/Button';
 import uuid from 'react-native-uuid';
 import { useBudgets, useUser } from '../../hooks';
 import { addData, BUDGETS, emptyBudget } from '../../utils';
 import * as rootNavigation from '../../utils';
 import { Entypo } from '@expo/vector-icons';
+import { LoadingButton } from '..';
 
 export function NewBudget() {
   const [budget, setBudget] = useState<Budgets>(emptyBudget);
   const { budgets, setBudgets } = useBudgets();
   const { user } = useUser();
   const [isDisabled, setIsDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const saveData = async () => {
+    setIsLoading(true);
     await addData({
       ...budget,
       id: String(uuid.v4())
     }, user.id);
     setBudgets([...budgets, budget]);
     setBudget(emptyBudget);
+    setIsLoading(false);
     rootNavigation.navigate(BUDGETS);
-  }
-
-  const checkIsCanSave = () => {
-    let canSave = false;
-    const { category, name, type, value } = budget;
-    
-    if (
-      name.length !== 0 &&
-      category.length !== 0 &&
-      category.length !== 0 &&
-      type === Type.Income || type === Type.Spent &&
-      Number(value) > 0
-    ) canSave = true;
-
-    console.log(canSave);
-
-    setIsDisabled(canSave);
   }
 
   useEffect(() => {
@@ -55,10 +41,6 @@ export function NewBudget() {
 
     setIsDisabled(canSave);
   }, [budget]);
-
-  useEffect(() => {
-    console.log('isDisabled: ', isDisabled);
-  }, [isDisabled]);
 
   return (
     <View style={styles.container}>
@@ -95,13 +77,14 @@ export function NewBudget() {
         </Pressable>
       </View>
 
-      <CustomButton
+      <LoadingButton
         title='Salvar'
         onPress={saveData}
         btnStyle={{ backgroundColor: '#e35e00' }}
         textStyle={{ color: '#fff' }}
         icon={<Entypo name='save' size={24} color='#fff' />}
         isDisabled={isDisabled}
+        isLoading={isLoading}
       />
     </View>
   );

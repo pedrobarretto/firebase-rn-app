@@ -22,7 +22,6 @@ export function navigate(name: string, params?: Record<string, unknown>) {
 export function getRoute() {
   if (navigationRef.isReady()) {
     const route = navigationRef.getRootState().routes[navigationRef.getRootState().index];
-    console.log('route.name: ', route.name);
     return route.name;
   }
 
