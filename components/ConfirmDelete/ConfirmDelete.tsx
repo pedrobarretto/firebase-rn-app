@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { useSnackBar } from '../../hooks';
 import { LoadingButton } from '../LoadingButton/LoadingButton';
 
 interface ConfirmDeleteModalProps {
@@ -12,11 +13,20 @@ interface ConfirmDeleteModalProps {
 
 export function ConfirmDelete({ id, text, onConfirm, onCancel, isOpen }: ConfirmDeleteModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const { setState } = useSnackBar();
 
   const handleConfirm = async () => {
-    setIsLoading(true);
-    await onConfirm(id);
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      await onConfirm(id);
+      setIsLoading(false);
+    } catch (error) {
+      setState({
+        isSnackBarOpen: true,
+        message: 'Erro ao deletar registro',
+        type: 'error'
+      });
+    }
   }
   
   return (

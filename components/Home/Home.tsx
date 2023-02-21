@@ -6,9 +6,9 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { LoadingButton } from '..';
 import { auth, db } from '../../config';
-import { useUser } from '../../hooks';
+import { useSnackBar, useUser } from '../../hooks';
 import { User } from '../../interfaces';
-import { BUDGETS } from '../../utils';
+import { BUDGETS, mapErrorCodeToMessage } from '../../utils';
 
 export function Home({ navigation }: any) {
   const [email, setEmail] = useState<string>('');
@@ -17,6 +17,7 @@ export function Home({ navigation }: any) {
   const { setUser } = useUser();
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [isRegisterLoading, setIsRegisterLoading] = useState(false);
+  const { state, setState } = useSnackBar();
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -33,22 +34,9 @@ export function Home({ navigation }: any) {
     })
   }, []);
 
-  function mapAuthCodeToMessage(authCode: string) {
-    switch (authCode) {
-      case 'auth/wrong-password':
-        return 'Email ou senha incorretos';
-      case 'auth/invalid-email':
-        return 'Email ou senha incorretos';
-      case 'auth/too-many-requests':
-        return 'Esse usuário fez muitas requisições, aguarde um pouco ou tente entrar com outra conta'
-      default:
-        return 'Erro ao realizar login';
-    }
-  }
-
   const signUp = async () => {
+    setIsRegisterLoading(true);
     try {
-      setIsRegisterLoading(true);
       const info = await createUserWithEmailAndPassword(auth, email, password);
       const createdAt = new Date();
       await setDoc(doc(db, 'users', info.user.uid), {
@@ -58,24 +46,33 @@ export function Home({ navigation }: any) {
       });
       setUser({ id: info.user.uid, email, createdAt });
       console.log(info);
-      setIsRegisterLoading(false);
     } catch (error) {
-      console.log(error);
+      if (error instanceof FirebaseError) {
+        setState({
+          isSnackBarOpen: true,
+          message: mapErrorCodeToMessage(error.code),
+          type: 'error'
+        });
+      }
     }
+    setIsRegisterLoading(false);
   }
 
   const login = async () => {
+    setIsLoginLoading(true);
     try {
-      setIsLoginLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      setIsLoginLoading(false);
       setError('');
     } catch (error) {
       if (error instanceof FirebaseError) {
-        console.log(error.code);
-        setError(mapAuthCodeToMessage(error.code))
+        setState({
+          isSnackBarOpen: true,
+          message: mapErrorCodeToMessage(error.code),
+          type: 'error'
+        });
       }
     }
+    setIsLoginLoading(false);
   }
   
   return (

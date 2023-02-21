@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useRegisters, useUser } from '../../hooks';
+import { useRegisters, useSnackBar, useUser } from '../../hooks';
 import { Budgets, Type } from '../../interfaces';
 import { calcTotalOnDelete, currencyFormat, deleteBudget, formatType } from '../../utils';
 import { ConfirmDelete } from '../ConfirmDelete/ConfirmDelete';
@@ -13,6 +13,7 @@ export function Budget({ budget }: Props) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const { user } = useUser();
   const { register, setRegister } = useRegisters();
+  const { setState } = useSnackBar();
 
   const handleLongPress = () => {
     setIsDeleteModalOpen(true);

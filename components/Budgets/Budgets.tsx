@@ -7,21 +7,30 @@ import {
   Text
 } from 'react-native';
 import { useEffect } from 'react';
-import { useRegisters, useUser } from '../../hooks';
+import { useRegisters, useSnackBar, useUser } from '../../hooks';
 import { Budget } from './Budget';
 import { currencyFormat, getData } from '../../utils';
 
 export function BudgetsPage({ navigation }: any) {
-  const { user, setUser } = useUser();
+  const { user } = useUser();
   const { register, setRegister } = useRegisters();
+  const { setState } = useSnackBar();
 
   useEffect(() => {
     startup();
   }, []);
 
   const startup = async () => {
-    const data = await getData(user.id);
-    setRegister(data);
+    try {
+      const data = await getData(user.id);
+      setRegister(data);
+    } catch (error) {
+      setState({
+        isSnackBarOpen: true,
+        message: 'Erro ao deletar registro',
+        type: 'error'
+      });
+    }
   }
 
   return (

@@ -4,3 +4,4 @@ export * from './handleBudgetsData';
 export * from './pages';
 export * from './rootNavigation';
 export * from './emptyBudget';
+export * from './mapError';

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useSnackBar } from '../../hooks';
 import { LoadingButton } from '../LoadingButton/LoadingButton';
 
 type Props = {
@@ -11,12 +12,21 @@ type Props = {
 export function BugReportModal({ visible, onClose, onSubmit }: Props) {
   const [bugDescription, setBugDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { setState } = useSnackBar();
 
   const handleSubmit = async () => {
-    setIsLoading(true);
-    await onSubmit(bugDescription);
-    setBugDescription('');
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      await onSubmit(bugDescription);
+      setBugDescription('');
+      setIsLoading(false);
+    } catch (error) {
+      setState({
+        isSnackBarOpen: true,
+        message: 'Erro ao reportar bug',
+        type: 'error'
+      });
+    }
   };
 
   return (

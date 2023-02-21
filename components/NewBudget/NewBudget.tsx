@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
 import { Budgets, Type } from '../../interfaces/Budget';
 import uuid from 'react-native-uuid';
-import { useRegisters, useUser } from '../../hooks';
+import { useRegisters, useSnackBar, useUser } from '../../hooks';
 import { addData, BUDGETS, calcTotal, emptyBudget } from '../../utils';
 import * as rootNavigation from '../../utils';
 import { Entypo } from '@expo/vector-icons';
@@ -12,22 +12,32 @@ export function NewBudget() {
   const [budget, setBudget] = useState<Budgets>(emptyBudget);
   const { register, setRegister } = useRegisters();
   const { user } = useUser();
+  const { setState } = useSnackBar();
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
   const saveData = async () => {
     setIsLoading(true);
-    await addData({
-      ...budget,
-      id: String(uuid.v4())
-    }, user.id);
-    setRegister({
-      values: [...register.values, budget],
-      total: calcTotal(register.total, budget)
-    });
-    setBudget(emptyBudget);
+    try {
+      await addData({
+        ...budget,
+        id: String(uuid.v4())
+      }, user.id);
+      setRegister({
+        values: [...register.values, budget],
+        total: calcTotal(register.total, budget)
+      });
+      setBudget(emptyBudget);
+      setIsLoading(false);
+      rootNavigation.navigate(BUDGETS);
+    } catch (error) {
+      setState({
+        isSnackBarOpen: true,
+        message: 'Erro ao adicionar novo regitro',
+        type: 'error'
+      });
+    }
     setIsLoading(false);
-    rootNavigation.navigate(BUDGETS);
   }
 
   useEffect(() => {
