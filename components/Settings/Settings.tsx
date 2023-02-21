@@ -17,8 +17,6 @@ export function Settings() {
   const { user, setUser } = useUser();
   const { setRegister } = useRegisters();
   const [isBugModalOpen, setIsBugModalOpen] = useState(false);
-  const linkedInColor = '#0e76a8';
-  const githubColor = '#211F1F';
 
   const handleLogout = () => {
     setUser({} as User);
@@ -90,7 +88,7 @@ export function Settings() {
       <TouchableOpacity
         style={{
           ...styles.button,
-          backgroundColor: linkedInColor
+          backgroundColor: '#0e76a8'
         }}
         onPress={handleLinkedInPress}
       >
@@ -100,7 +98,7 @@ export function Settings() {
       <TouchableOpacity
         style={{
           ...styles.button,
-          backgroundColor: githubColor
+          backgroundColor: '#211F1F'
         }}
         onPress={handleGitHubPress}
       >
