@@ -2,7 +2,7 @@ import { signOut } from 'firebase/auth';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { auth, db } from '../../config';
-import { useBudgets, useUser } from '../../hooks';
+import { useRegisters, useUser } from '../../hooks';
 import { User } from '../../interfaces';
 import * as rootNavigation from '../../utils';
 import { HOME } from '../../utils';
@@ -15,14 +15,14 @@ import { AntDesign } from '@expo/vector-icons';
 
 export function Settings() {
   const { user, setUser } = useUser();
-  const { setBudgets } = useBudgets();
+  const { setRegister } = useRegisters();
   const [isBugModalOpen, setIsBugModalOpen] = useState(false);
   const linkedInColor = '#0e76a8';
   const githubColor = '#211F1F';
 
   const handleLogout = () => {
     setUser({} as User);
-    setBudgets([]);
+    setRegister({ values: [], total: 0 });
     signOut(auth);
     rootNavigation.navigate(HOME);
   }

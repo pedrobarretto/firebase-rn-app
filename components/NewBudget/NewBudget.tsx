@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
 import { Budgets, Type } from '../../interfaces/Budget';
 import uuid from 'react-native-uuid';
-import { useBudgets, useUser } from '../../hooks';
-import { addData, BUDGETS, emptyBudget } from '../../utils';
+import { useRegisters, useUser } from '../../hooks';
+import { addData, BUDGETS, calcTotal, emptyBudget } from '../../utils';
 import * as rootNavigation from '../../utils';
 import { Entypo } from '@expo/vector-icons';
 import { LoadingButton } from '..';
 
 export function NewBudget() {
   const [budget, setBudget] = useState<Budgets>(emptyBudget);
-  const { budgets, setBudgets } = useBudgets();
+  const { register, setRegister } = useRegisters();
   const { user } = useUser();
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +21,10 @@ export function NewBudget() {
       ...budget,
       id: String(uuid.v4())
     }, user.id);
-    setBudgets([...budgets, budget]);
+    setRegister({
+      values: [...register.values, budget],
+      total: calcTotal(register.total, budget)
+    });
     setBudget(emptyBudget);
     setIsLoading(false);
     rootNavigation.navigate(BUDGETS);
@@ -42,6 +45,13 @@ export function NewBudget() {
     setIsDisabled(canSave);
   }, [budget]);
 
+  const handleValueChange = (value: string) => {
+    value = value.replace(',', '.');
+    value = value.replace('-', '');
+
+    setBudget({ ...budget, value: Number(value) });
+  };
+
   return (
     <View style={styles.container}>
       <Text style={{ marginBottom: 10, fontSize: 16, fontWeight: '600' }}>Novo registro</Text>
@@ -61,7 +71,7 @@ export function NewBudget() {
         placeholder='Valor'
         keyboardType='numeric'
         value={budget.value?.toString()}
-        onChangeText={(text) => setBudget({ ...budget, value: Number(text) })}
+        onChangeText={(text) => handleValueChange(text)}
         style={styles.input}
       />
       <View style={styles.box}>

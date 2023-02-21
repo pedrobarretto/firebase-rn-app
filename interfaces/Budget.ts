@@ -11,3 +11,8 @@ export enum Type {
   Spent = 'Spent',
   None = 'None'
 }
+
+export interface Registers {
+  values: Budgets[];
+  total: number;
+}

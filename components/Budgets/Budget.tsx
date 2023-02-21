@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useBudgets, useUser } from '../../hooks';
+import { useRegisters, useUser } from '../../hooks';
 import { Budgets, Type } from '../../interfaces';
-import { currencyFormat, deleteBudget, formatType } from '../../utils';
+import { calcTotalOnDelete, currencyFormat, deleteBudget, formatType } from '../../utils';
 import { ConfirmDelete } from '../ConfirmDelete/ConfirmDelete';
 
 interface Props {
@@ -12,10 +12,9 @@ interface Props {
 export function Budget({ budget }: Props) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const { user } = useUser();
-  const { budgets, setBudgets } = useBudgets();
+  const { register, setRegister } = useRegisters();
 
   const handleLongPress = () => {
-    console.log('Long press');
     setIsDeleteModalOpen(true);
   }
 
@@ -25,8 +24,11 @@ export function Budget({ budget }: Props) {
 
   const onConfirm = async () => {
     await deleteBudget(budget.id, user.id);
-    const newBudgets = budgets.filter((x: Budgets) => x.id !== budget.id);
-    setBudgets(newBudgets);
+    const newBudgets = register.values.filter((x: Budgets) => x.id !== budget.id);
+    setRegister({
+      values: [...newBudgets],
+      total: calcTotalOnDelete(register.total, budget)
+    });
     setIsDeleteModalOpen(false);
   }
 

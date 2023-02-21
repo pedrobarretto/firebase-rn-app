@@ -1,2 +1,2 @@
 export * from './useUser';
-export * from './useBudgets';
+export * from './useRegisters';

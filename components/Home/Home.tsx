@@ -14,7 +14,7 @@ export function Home({ navigation }: any) {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState('');
-  const { user, setUser } = useUser();
+  const { setUser } = useUser();
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [isRegisterLoading, setIsRegisterLoading] = useState(false);
 

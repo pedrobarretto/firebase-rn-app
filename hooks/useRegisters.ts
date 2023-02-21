@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { BudgetsContext } from '../context';
 
-export function useBudgets() {
+export function useRegisters() {
   const context = useContext(BudgetsContext);
   return context;
 }
