@@ -49,7 +49,7 @@ export function BudgetsPage({ navigation }: any) {
           }
         </Text>
       </View>
-      <View>
+      <View style={styles.budgetsContainer}>
         <FlatList
           data={register.values}
           renderItem={({item}) => <Budget budget={item} />}
@@ -67,6 +67,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight - 20 : StatusBar.currentHeight
+  },
+  budgetsContainer: {
+    height: '90%'
   },
   scrollView: {
     backgroundColor: 'pink'
@@ -93,6 +96,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 2,
+    zIndex: 90
   },
   totalText: {
     fontSize: 16,
