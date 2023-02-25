@@ -38,7 +38,7 @@ export function Budget({ budget }: Props) {
       {
         budget && (
           <>
-            <Pressable style={styles.box} onLongPress={handleLongPress}>
+            <Pressable key={budget.id} style={styles.box} onLongPress={handleLongPress}>
             <View style={styles.collumn}>
               <Text style={styles.boldText}>{budget.name}</Text>
               <Text style={{ color: '#7d7d7d' }}>{budget.category}</Text>

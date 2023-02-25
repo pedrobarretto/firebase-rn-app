@@ -5,18 +5,20 @@ import { auth, db } from '../../config';
 import { useRegisters, useUser } from '../../hooks';
 import { User } from '../../interfaces';
 import * as rootNavigation from '../../utils';
-import { HOME } from '../../utils';
+import { deleteAllBudgets, HOME } from '../../utils';
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { addDoc, collection } from 'firebase/firestore';
 import { useState } from 'react';
 import { BugReportModal } from '../BugReportModal/BugReportModal';
 import { AntDesign } from '@expo/vector-icons';
+import { ConfirmDelete } from '../ConfirmDelete/ConfirmDelete';
 
 export function Settings() {
   const { user, setUser } = useUser();
   const { setRegister } = useRegisters();
   const [isBugModalOpen, setIsBugModalOpen] = useState(false);
+  const [isDeleteBudgetsOpen, setIsDeleteBudgetsOpen] = useState(false);
 
   const handleLogout = () => {
     setUser({} as User);
@@ -47,7 +49,9 @@ export function Settings() {
   };
 
   const handleDeleteRecords = async () => {
-    console.log('Deleting records...');
+    await deleteAllBudgets(user.id);
+    setRegister({ values: [], total: 0 });
+    setIsDeleteBudgetsOpen(false);
   }
 
   const handleDeleteAccount = () => {
@@ -74,7 +78,7 @@ export function Settings() {
       <TouchableOpacity style={{
         ...styles.button,
         backgroundColor: '#e35e00'
-      }} onPress={handleDeleteRecords}>
+      }} onPress={() => setIsDeleteBudgetsOpen(true)}>
         <Entypo name='new-message' size={24} color='#fff' />
         <Text style={{ ...styles.buttonText, color: '#fff' }}>Recomeçar registros</Text>
       </TouchableOpacity>
@@ -106,6 +110,12 @@ export function Settings() {
         <Text style={{ ...styles.buttonText, color: '#fff' }}>GitHub</Text>
       </TouchableOpacity>
 
+      <ConfirmDelete
+        isOpen={isDeleteBudgetsOpen}
+        onCancel={() => setIsDeleteBudgetsOpen(false)}
+        text={'Você tem certeza que gostaria de deletar todos os seus ganhos e gastos?'}
+        onConfirm={handleDeleteRecords}
+      />
       <BugReportModal visible={isBugModalOpen} onSubmit={handleReportBug} onClose={onClose} />
     </View>
   );
