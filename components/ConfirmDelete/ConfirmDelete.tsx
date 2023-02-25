@@ -5,27 +5,28 @@ import { LoadingButton } from '../LoadingButton/LoadingButton';
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
-  id: string;
   text: string;
-  onConfirm: (id: string) => Promise<void>;
+  onConfirm: () => Promise<void>;
   onCancel: () => void;
 }
 
-export function ConfirmDelete({ id, text, onConfirm, onCancel, isOpen }: ConfirmDeleteModalProps) {
+export function ConfirmDelete({ text, onConfirm, onCancel, isOpen }: ConfirmDeleteModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { setState } = useSnackBar();
 
   const handleConfirm = async () => {
     try {
       setIsLoading(true);
-      await onConfirm(id);
+      await onConfirm();
       setIsLoading(false);
     } catch (error) {
+      console.error(error);
       setState({
         isSnackBarOpen: true,
-        message: 'Erro ao deletar registro',
+        message: 'Erro ao realizar exclusão',
         type: 'error'
       });
+      setIsLoading(false);
     }
   }
   

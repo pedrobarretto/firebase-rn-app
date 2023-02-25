@@ -5,3 +5,4 @@ export * from './pages';
 export * from './rootNavigation';
 export * from './emptyBudget';
 export * from './mapError';
+export * from './dismissKeyboard';

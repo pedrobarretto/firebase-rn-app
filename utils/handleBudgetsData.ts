@@ -29,12 +29,39 @@ export async function addData(budget: Budgets, userId: string) {
 
 export async function deleteBudget(id: string, userId: string) {
   const oldData = await getData(userId);
-  const newData = oldData.values.filter((x: Budgets) => x.id !== id);
   const [deletedBudget] = oldData.values.filter((x: Budgets) => x.id === id);
+  const newData = oldData.values.filter((x: Budgets) => x.id !== id);
   await setDoc(doc(db, 'budgets', userId), {
     values: [...newData],
-    total: oldData.total - deletedBudget.value
+    total:
+      newData.length === 0 ?
+      0 :
+      handleCalcTotalOnDeleteBudget(oldData.total, deletedBudget)
   });
+}
+
+export function handleCalcTotalOnDeleteBudget(total: number, budget: Budgets) {
+  const { value } = budget;
+
+  if (total < 0) return 0;
+
+  if (budget.type === Type.Spent) {
+    return total + value;
+  }
+
+  return total - value;
+
+  // if (total < 0 && value < 0) {
+  //   return total + value;
+  // }
+
+  // if (total < 0 && value > 0) {
+  //   return total - value;
+  // }
+
+  // if (total > 0 && value < 0) {
+  //   return 
+  // }
 }
 
 export function calcTotal(total: number, budget: Budgets) {

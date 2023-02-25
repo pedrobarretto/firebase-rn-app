@@ -24,8 +24,8 @@ export function Budget({ budget }: Props) {
   }
 
   const onConfirm = async () => {
-    await deleteBudget(budget.id, user.id);
     const newBudgets = register.values.filter((x: Budgets) => x.id !== budget.id);
+    await deleteBudget(budget.id, user.id);
     setRegister({
       values: [...newBudgets],
       total: calcTotalOnDelete(register.total, budget)
@@ -35,26 +35,31 @@ export function Budget({ budget }: Props) {
 
   return (
     <>
-      <Pressable key={budget.id} style={styles.box} onLongPress={handleLongPress}>
-        <View style={styles.collumn}>
-          <Text style={styles.boldText}>{budget.name}</Text>
-          <Text style={{ color: '#7d7d7d' }}>{budget.category}</Text>
-        </View>
-        <View style={styles.collumn}>
-          <View style={budget.type === Type.Income ? styles.income : styles.spent}>
-            <Text style={{ color: '#fff', fontWeight: '600' }}>{formatType(budget.type)}</Text>
-          </View>
-          <Text style={styles.boldText}>{currencyFormat(budget.value)}</Text>
-        </View>
-      </Pressable>
+      {
+        budget && (
+          <>
+            <Pressable style={styles.box} onLongPress={handleLongPress}>
+            <View style={styles.collumn}>
+              <Text style={styles.boldText}>{budget.name}</Text>
+              <Text style={{ color: '#7d7d7d' }}>{budget.category}</Text>
+            </View>
+            <View style={styles.collumn}>
+              <View style={budget.type === Type.Income ? styles.income : styles.spent}>
+                <Text style={{ color: '#fff', fontWeight: '600' }}>{formatType(budget.type)}</Text>
+              </View>
+              <Text style={styles.boldText}>{currencyFormat(budget.value)}</Text>
+            </View>
+          </Pressable>
 
-      <ConfirmDelete
-        isOpen={isDeleteModalOpen}
-        id={budget.id}
-        onCancel={onCancel}
-        text={`Você tem certeza que quer deletar o ${formatType(budget.type)} "${budget.name}"?`}
-        onConfirm={onConfirm}
-      />
+          <ConfirmDelete
+            isOpen={isDeleteModalOpen}
+            onCancel={onCancel}
+            text={`Você tem certeza que quer deletar o ${formatType(budget.type)} "${budget.name}"?`}
+            onConfirm={onConfirm}
+          />
+        </>
+        )
+      }
     </>
   )
 };

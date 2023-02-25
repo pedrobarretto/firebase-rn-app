@@ -1,20 +1,31 @@
 import { StatusBar } from 'expo-status-bar';
 import { FirebaseError } from 'firebase/app';
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  User as FirebaseUser } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback } from 'react-native';
 import { LoadingButton } from '..';
 import { auth, db } from '../../config';
 import { useSnackBar, useUser } from '../../hooks';
 import { User } from '../../interfaces';
-import { BUDGETS, mapErrorCodeToMessage } from '../../utils';
+import { BUDGETS, dismissKeyboard, mapErrorCodeToMessage } from '../../utils';
 
 export function Home({ navigation }: any) {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState('');
-  const { setUser } = useUser();
+  const { setUser, setRawUser } = useUser();
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [isRegisterLoading, setIsRegisterLoading] = useState(false);
   const { state, setState } = useSnackBar();
@@ -25,11 +36,13 @@ export function Home({ navigation }: any) {
       if (user) {
         console.log(`Setting user ${user.email}`);
         // FIXME: Fix createdAt prop
+        setRawUser(user);
         setUser({ email: String(user.email), id: user.uid, createdAt: new Date() });
         navigation.navigate(BUDGETS);
       } else {
         console.log('Not logged in')
         setUser({} as User);
+        setRawUser({} as FirebaseUser);
       }
     })
   }, []);
@@ -76,50 +89,52 @@ export function Home({ navigation }: any) {
   }
   
   return (
-    <KeyboardAvoidingView
-      style={styles.keyBoardAvoidContainer}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={styles.container}>
-        <TextInput
-          placeholder='Email'
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          style={styles.input}
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <KeyboardAvoidingView
+        style={styles.keyBoardAvoidContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.container}>
+          <TextInput
+            placeholder='Email'
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            style={styles.input}
+            />
+          <TextInput 
+            placeholder='Senha'
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            style={styles.input}
+            secureTextEntry={true}
           />
-        <TextInput 
-          placeholder='Senha'
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          style={styles.input}
-          secureTextEntry={true}
-        />
-        <LoadingButton
-          title='Cadastrar'
-          onPress={signUp}
-          isDisabled={email.length === 0 || password.length === 0}
-          btnStyle={{ backgroundColor: '#e35e00'  }}
-          textStyle={{ color: '#fff' }}
-          isLoading={isRegisterLoading}
-        />
-        <LoadingButton
-          title='Login'
-          onPress={login}
-          isDisabled={email.length === 0 || password.length === 0}
-          btnStyle={{ backgroundColor: '#e35e00'  }}
-          textStyle={{ color: '#fff' }}
-          isLoading={isLoginLoading}
-        />
-        {
-          (
-            error !== '' && (
-              <Text>{error}</Text>
+          <LoadingButton
+            title='Cadastrar'
+            onPress={signUp}
+            isDisabled={email.length === 0 || password.length === 0}
+            btnStyle={{ backgroundColor: '#e35e00'  }}
+            textStyle={{ color: '#fff' }}
+            isLoading={isRegisterLoading}
+          />
+          <LoadingButton
+            title='Login'
+            onPress={login}
+            isDisabled={email.length === 0 || password.length === 0}
+            btnStyle={{ backgroundColor: '#e35e00'  }}
+            textStyle={{ color: '#fff' }}
+            isLoading={isLoginLoading}
+          />
+          {
+            (
+              error !== '' && (
+                <Text>{error}</Text>
+              )
             )
-          )
-        }
-        <StatusBar style="auto" />
-      </View>
-    </KeyboardAvoidingView>
+          }
+          <StatusBar style="auto" />
+        </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   )
 }
 
