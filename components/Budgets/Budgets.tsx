@@ -53,12 +53,11 @@ export function BudgetsPage({ navigation }: any) {
         <FlatList
           data={register.values}
           renderItem={({item}) => <Budget budget={item} />}
-          keyExtractor={item => item.id}
+          keyExtractor={item => `${item.id}${item.value}${item.name}`}
           ListFooterComponent={<View style={{height: 20}}/>}
         />
       </View>
 
-      {/* <CustomButton title='Logout' onPress={logout} /> */}
     </SafeAreaView>
   )
 }
