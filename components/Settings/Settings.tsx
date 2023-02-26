@@ -15,6 +15,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { updatePassword } from 'firebase/auth';
 import { ChangePasswordModal, ConfirmExcludeAccount } from '..';
+import { FirebaseError } from 'firebase/app';
 
 export function Settings() {
   const { rawUser, user, setUser, setRawUser } = useUser();
@@ -58,39 +59,6 @@ export function Settings() {
     setRegister({ values: [], total: 0 });
     setIsDeleteBudgetsOpen(false);
   }
-
-  const handleDeleteAccount = async (password: string) => {
-    try {
-      const authCredential = EmailAuthProvider.credential(
-        user.email,
-        password
-      );
-      await reauthenticateWithCredential(rawUser, authCredential)
-        .then(() => {
-          console.log('Reauthenticated with success');
-        }).catch((error) => {
-          console.log('error on rea: ', error);
-          throw new Error(error);
-        });
-
-      console.log('After reauthenticateWithCredential')
-      const userRef = doc(db, 'users', user.id);
-      await deleteDoc(userRef);
-
-      const budgetRef = doc(db, 'budgets', user.id);
-      await deleteDoc(budgetRef);
-
-      // await deleteUser(rawUser);
-      await auth.currentUser?.delete();
-
-      setUser({} as User);
-      setRegister({ values: [], total: 0 });
-      setRawUser({} as Firebaseuser);
-      rootNavigation.navigate(HOME);
-    } catch (error) {
-      return error;
-    }
-  };
 
   const handleChangePassword = async (oldPassword: string, newPassword: string) => {
     try {
@@ -172,7 +140,6 @@ export function Settings() {
       <ConfirmExcludeAccount
         isOpen={isDeleteModalOpen}
         text={'Você tem certeza que gostaria de deletar sua conta?'}
-        onConfirm={handleDeleteAccount}
         onCancel={() => setIsDeleteModalOpen(false)}
       />
       <ConfirmDelete

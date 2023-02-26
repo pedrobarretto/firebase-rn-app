@@ -1,22 +1,27 @@
 import { FirebaseError } from 'firebase/app';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, Platform } from 'react-native';
-import { useSnackBar } from '../../hooks';
+import { useRegisters, useSnackBar, useUser } from '../../hooks';
 import { HOME } from '../../utils';
 import * as rootNavigation from '../../utils';
 import { LoadingButton } from '../LoadingButton/LoadingButton';
+import { EmailAuthProvider, reauthenticateWithCredential, User as Firebaseuser } from 'firebase/auth';
+import { auth, db } from '../../config';
+import { deleteDoc, doc } from 'firebase/firestore';
+import { User } from '../../interfaces';
 
 interface ConfirmExcludeAccountModalProps {
   isOpen: boolean;
   text: string;
-  onConfirm: (password: string) => Promise<unknown>;
   onCancel: () => void;
 }
 
-export function ConfirmExcludeAccount({ text, onConfirm, onCancel, isOpen }: ConfirmExcludeAccountModalProps) {
+export function ConfirmExcludeAccount({ text, onCancel, isOpen }: ConfirmExcludeAccountModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
   const { setState } = useSnackBar();
+  const { user, rawUser, setUser, setRawUser } = useUser();
+  const { setRegister } = useRegisters();
 
   const onClose = () => {
     setPassword('');
@@ -34,9 +39,28 @@ export function ConfirmExcludeAccount({ text, onConfirm, onCancel, isOpen }: Con
   }
 
   const handleConfirm = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      await onConfirm(password);
+      const authCredential = EmailAuthProvider.credential(
+        user.email,
+        password
+      );
+      const res = await reauthenticateWithCredential(rawUser, authCredential);
+      console.log(res);
+
+      const userRef = doc(db, 'users', user.id);
+      await deleteDoc(userRef);
+
+      const budgetRef = doc(db, 'budgets', user.id);
+      await deleteDoc(budgetRef);
+
+      // await deleteUser(rawUser);
+      await auth.currentUser?.delete();
+
+      setUser({} as User);
+      setRegister({ values: [], total: 0 });
+      setRawUser({} as Firebaseuser);
+
       setIsLoading(false);
       onCancel();
       rootNavigation.navigate(HOME);
