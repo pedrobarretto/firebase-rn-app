@@ -142,24 +142,18 @@ export function Settings() {
       </TouchableOpacity>
 
       <ConfirmDelete
-<<<<<<< HEAD
         isOpen={isDeleteModalOpen}
         text={'Você tem certeza que gostaria de deletar sua conta?'}
         onConfirm={handleDeleteAccount}
         onCancel={() => setIsDeleteModalOpen(false)}
       />
-      <BugReportModal
-        visible={isBugModalOpen}
-        onSubmit={handleReportBug}
-        onClose={onClose} />
-=======
+      <ConfirmDelete
         isOpen={isDeleteBudgetsOpen}
         onCancel={() => setIsDeleteBudgetsOpen(false)}
         text={'Você tem certeza que gostaria de deletar todos os seus ganhos e gastos?'}
         onConfirm={handleDeleteRecords}
       />
       <BugReportModal visible={isBugModalOpen} onSubmit={handleReportBug} onClose={onClose} />
->>>>>>> main
     </View>
   );
 }
