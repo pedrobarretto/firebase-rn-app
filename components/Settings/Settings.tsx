@@ -62,17 +62,15 @@ export function Settings() {
         'Senha123'
       );
 
-      await reauthenticateWithCredential(rawUser, authCredential);
-
-      // TODO: Se der erro na linha 63, a linha 59 terá sido executada.
-      // await deleteUser(rawUser);
-      await auth.currentUser?.delete();
-
       const userRef = doc(db, 'users', user.id);
       await deleteDoc(userRef);
 
       const budgetRef = doc(db, 'budgets', user.id);
       await deleteDoc(budgetRef);
+
+      await reauthenticateWithCredential(rawUser, authCredential);
+      // await deleteUser(rawUser);
+      await auth.currentUser?.delete();
 
       setUser({} as User);
       setRegister({ values: [], total: 0 });
