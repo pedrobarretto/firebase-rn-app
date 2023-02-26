@@ -8,3 +8,6 @@ export * from './ConfirmDelete/ConfirmDelete';
 export * from './BugReportModal/BugReportModal';
 export * from './LoadingButton/LoadingButton';
 export * from './SnackBar/SnackBar';
+export * from './ChangePasswordModal/ChangePasswordModal';
+export * from './ConfirmExcludeAccount/ConfirmExcludeAccount';
+
