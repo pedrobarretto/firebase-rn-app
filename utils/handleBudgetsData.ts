@@ -40,6 +40,13 @@ export async function deleteBudget(id: string, userId: string) {
   });
 }
 
+export async function deleteAllBudgets(userId: string) {
+  await setDoc(doc(db, 'budgets', userId), {
+    values: [],
+    total: 0
+  });
+}
+
 export function handleCalcTotalOnDeleteBudget(total: number, budget: Budgets) {
   const { value } = budget;
 
@@ -50,18 +57,6 @@ export function handleCalcTotalOnDeleteBudget(total: number, budget: Budgets) {
   }
 
   return total - value;
-
-  // if (total < 0 && value < 0) {
-  //   return total + value;
-  // }
-
-  // if (total < 0 && value > 0) {
-  //   return total - value;
-  // }
-
-  // if (total > 0 && value < 0) {
-  //   return 
-  // }
 }
 
 export function calcTotal(total: number, budget: Budgets) {

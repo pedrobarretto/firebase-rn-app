@@ -19,7 +19,7 @@ import { LoadingButton } from '..';
 import { auth, db } from '../../config';
 import { useSnackBar, useUser } from '../../hooks';
 import { User } from '../../interfaces';
-import { BUDGETS, dismissKeyboard, mapErrorCodeToMessage } from '../../utils';
+import { BUDGETS, dismissKeyboard, isEmailValid, mapErrorCodeToMessage } from '../../utils';
 
 export function Home({ navigation }: any) {
   const [email, setEmail] = useState<string>('');
@@ -60,6 +60,7 @@ export function Home({ navigation }: any) {
       setUser({ id: info.user.uid, email, createdAt });
       console.log(info);
     } catch (error) {
+      console.log(error);
       if (error instanceof FirebaseError) {
         setState({
           isSnackBarOpen: true,

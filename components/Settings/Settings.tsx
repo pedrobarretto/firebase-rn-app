@@ -5,7 +5,7 @@ import { auth, db } from '../../config';
 import { useRegisters, useSnackBar, useUser } from '../../hooks';
 import { User } from '../../interfaces';
 import * as rootNavigation from '../../utils';
-import { HOME } from '../../utils';
+import { deleteAllBudgets, HOME } from '../../utils';
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { addDoc, collection, deleteDoc, doc } from 'firebase/firestore';
@@ -19,6 +19,7 @@ export function Settings() {
   const [isBugModalOpen, setIsBugModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { setState } = useSnackBar();
+  const [isDeleteBudgetsOpen, setIsDeleteBudgetsOpen] = useState(false);
 
   const handleLogout = () => {
     setUser({} as User);
@@ -49,7 +50,9 @@ export function Settings() {
   };
 
   const handleDeleteRecords = async () => {
-    console.log('Deleting records...');
+    await deleteAllBudgets(user.id);
+    setRegister({ values: [], total: 0 });
+    setIsDeleteBudgetsOpen(false);
   }
 
   const handleDeleteAccount = async (userPassword?: string) => {
@@ -106,7 +109,7 @@ export function Settings() {
       <TouchableOpacity style={{
         ...styles.button,
         backgroundColor: '#e35e00'
-      }} onPress={handleDeleteRecords}>
+      }} onPress={() => setIsDeleteBudgetsOpen(true)}>
         <Entypo name='new-message' size={24} color='#fff' />
         <Text style={{ ...styles.buttonText, color: '#fff' }}>Recomeçar registros</Text>
       </TouchableOpacity>
@@ -139,6 +142,7 @@ export function Settings() {
       </TouchableOpacity>
 
       <ConfirmDelete
+<<<<<<< HEAD
         isOpen={isDeleteModalOpen}
         text={'Você tem certeza que gostaria de deletar sua conta?'}
         onConfirm={handleDeleteAccount}
@@ -148,6 +152,14 @@ export function Settings() {
         visible={isBugModalOpen}
         onSubmit={handleReportBug}
         onClose={onClose} />
+=======
+        isOpen={isDeleteBudgetsOpen}
+        onCancel={() => setIsDeleteBudgetsOpen(false)}
+        text={'Você tem certeza que gostaria de deletar todos os seus ganhos e gastos?'}
+        onConfirm={handleDeleteRecords}
+      />
+      <BugReportModal visible={isBugModalOpen} onSubmit={handleReportBug} onClose={onClose} />
+>>>>>>> main
     </View>
   );
 }
