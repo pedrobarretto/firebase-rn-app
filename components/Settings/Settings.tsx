@@ -1,23 +1,24 @@
-import { signOut } from 'firebase/auth';
+import { deleteUser, signOut, User as Firebaseuser, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { auth, db } from '../../config';
-import { useRegisters, useUser } from '../../hooks';
+import { useRegisters, useSnackBar, useUser } from '../../hooks';
 import { User } from '../../interfaces';
 import * as rootNavigation from '../../utils';
 import { deleteAllBudgets, HOME } from '../../utils';
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc } from 'firebase/firestore';
 import { useState } from 'react';
-import { BugReportModal } from '../BugReportModal/BugReportModal';
+import { BugReportModal, ConfirmDelete } from '..';
 import { AntDesign } from '@expo/vector-icons';
-import { ConfirmDelete } from '../ConfirmDelete/ConfirmDelete';
 
 export function Settings() {
-  const { user, setUser } = useUser();
+  const { rawUser, user, setUser, setRawUser } = useUser();
   const { setRegister } = useRegisters();
   const [isBugModalOpen, setIsBugModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { setState } = useSnackBar();
   const [isDeleteBudgetsOpen, setIsDeleteBudgetsOpen] = useState(false);
 
   const handleLogout = () => {
@@ -54,14 +55,42 @@ export function Settings() {
     setIsDeleteBudgetsOpen(false);
   }
 
-  const handleDeleteAccount = () => {
-    console.log('Delete Account pressed');
+  const handleDeleteAccount = async (userPassword?: string) => {
+    try {
+      const authCredential = EmailAuthProvider.credential(
+        user.email,
+        'Senha123'
+      );
+
+      const userRef = doc(db, 'users', user.id);
+      await deleteDoc(userRef);
+
+      const budgetRef = doc(db, 'budgets', user.id);
+      await deleteDoc(budgetRef);
+
+      await reauthenticateWithCredential(rawUser, authCredential);
+      // await deleteUser(rawUser);
+      await auth.currentUser?.delete();
+
+      setUser({} as User);
+      setRegister({ values: [], total: 0 });
+      setRawUser({} as Firebaseuser);
+      rootNavigation.navigate(HOME);
+    } catch (error) {
+      console.log(error);
+      setState({
+        isSnackBarOpen: true,
+        message: 'Erro ao deletar conta',
+        type: 'error'
+      });
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text>
+        <Text style={styles.text}>Logado como: {user.email}</Text>
+        <Text style={styles.text}>
           Este app é um MVP. Caso encontre bugs, agradeço se
           reportar! Isso irá ajudar no desenvolvimento
           das próximas versões.
@@ -85,7 +114,7 @@ export function Settings() {
       <TouchableOpacity style={{
           ...styles.button,
           backgroundColor: '#ff3939'
-        }} onPress={handleDeleteAccount}>
+        }} onPress={() => setIsDeleteModalOpen(true)}>
         <Feather name='trash-2' size={24} color='#fff' />
         <Text style={{ ...styles.buttonText, color: '#fff' }}>Excluir Conta</Text>
       </TouchableOpacity>
@@ -110,6 +139,12 @@ export function Settings() {
         <Text style={{ ...styles.buttonText, color: '#fff' }}>GitHub</Text>
       </TouchableOpacity>
 
+      <ConfirmDelete
+        isOpen={isDeleteModalOpen}
+        text={'Você tem certeza que gostaria de deletar sua conta?'}
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setIsDeleteModalOpen(false)}
+      />
       <ConfirmDelete
         isOpen={isDeleteBudgetsOpen}
         onCancel={() => setIsDeleteBudgetsOpen(false)}
@@ -157,4 +192,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  text: {
+    fontWeight: '600',
+    fontSize: 16
+  }
 });
