@@ -139,7 +139,6 @@ export function Settings() {
       />
       <ConfirmExcludeAccount
         isOpen={isDeleteModalOpen}
-        text={'Você tem certeza que gostaria de deletar sua conta?'}
         onCancel={() => setIsDeleteModalOpen(false)}
       />
       <ConfirmDelete

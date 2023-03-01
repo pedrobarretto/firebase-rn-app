@@ -12,11 +12,10 @@ import { User } from '../../interfaces';
 
 interface ConfirmExcludeAccountModalProps {
   isOpen: boolean;
-  text: string;
   onCancel: () => void;
 }
 
-export function ConfirmExcludeAccount({ text, onCancel, isOpen }: ConfirmExcludeAccountModalProps) {
+export function ConfirmExcludeAccount({ onCancel, isOpen }: ConfirmExcludeAccountModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
   const { setState } = useSnackBar();
@@ -33,6 +32,8 @@ export function ConfirmExcludeAccount({ text, onCancel, isOpen }: ConfirmExclude
     switch (error) {
       case 'auth/wrong-password':
         return 'Senha incorreta';
+      case 'auth/too-many-requests':
+        return 'Muitas tentativas seguidas, tente novamente mais tarde'
       default:
         return 'Erro ao deletar conta';
     }
@@ -45,8 +46,7 @@ export function ConfirmExcludeAccount({ text, onCancel, isOpen }: ConfirmExclude
         user.email,
         password
       );
-      const res = await reauthenticateWithCredential(rawUser, authCredential);
-      console.log(res);
+      await reauthenticateWithCredential(rawUser, authCredential);
 
       const userRef = doc(db, 'users', user.id);
       await deleteDoc(userRef);
@@ -66,7 +66,6 @@ export function ConfirmExcludeAccount({ text, onCancel, isOpen }: ConfirmExclude
       rootNavigation.navigate(HOME);
     } catch (error) {
       if (error instanceof FirebaseError) {
-        console.error(error);
         setState({
           isSnackBarOpen: true,
           message: mapError(error.code),
