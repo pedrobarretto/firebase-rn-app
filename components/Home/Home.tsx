@@ -101,7 +101,7 @@ export function Home({ navigation }: any) {
             value={email}
             onChangeText={(text) => setEmail(text)}
             style={styles.input}
-            />
+          />
           <TextInput 
             placeholder='Senha'
             value={password}

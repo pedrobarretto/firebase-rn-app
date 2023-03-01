@@ -1,4 +1,4 @@
-import { deleteUser, signOut, User as Firebaseuser, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
+import { signOut, User as Firebaseuser, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { auth, db } from '../../config';
@@ -12,14 +12,19 @@ import { addDoc, collection, deleteDoc, doc } from 'firebase/firestore';
 import { useState } from 'react';
 import { BugReportModal, ConfirmDelete } from '..';
 import { AntDesign } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { updatePassword } from 'firebase/auth';
+import { ChangePasswordModal, ConfirmExcludeAccount } from '..';
+import { FirebaseError } from 'firebase/app';
 
 export function Settings() {
   const { rawUser, user, setUser, setRawUser } = useUser();
   const { setRegister } = useRegisters();
+  const { setState } = useSnackBar();
   const [isBugModalOpen, setIsBugModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const { setState } = useSnackBar();
   const [isDeleteBudgetsOpen, setIsDeleteBudgetsOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   const handleLogout = () => {
     setUser({} as User);
@@ -55,36 +60,20 @@ export function Settings() {
     setIsDeleteBudgetsOpen(false);
   }
 
-  const handleDeleteAccount = async (userPassword?: string) => {
+  const handleChangePassword = async (oldPassword: string, newPassword: string) => {
     try {
       const authCredential = EmailAuthProvider.credential(
         user.email,
-        'Senha123'
+        oldPassword
       );
-
-      const userRef = doc(db, 'users', user.id);
-      await deleteDoc(userRef);
-
-      const budgetRef = doc(db, 'budgets', user.id);
-      await deleteDoc(budgetRef);
-
       await reauthenticateWithCredential(rawUser, authCredential);
-      // await deleteUser(rawUser);
-      await auth.currentUser?.delete();
-
-      setUser({} as User);
-      setRegister({ values: [], total: 0 });
-      setRawUser({} as Firebaseuser);
-      rootNavigation.navigate(HOME);
+  
+      await updatePassword(rawUser, newPassword);
+      setIsChangePasswordOpen(false);
     } catch (error) {
-      console.log(error);
-      setState({
-        isSnackBarOpen: true,
-        message: 'Erro ao deletar conta',
-        type: 'error'
-      });
+      return error;
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -100,9 +89,9 @@ export function Settings() {
         <Feather name='log-out' size={24} color='black' />
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={{ ...styles.button, backgroundColor: '#028e4d' }} onPress={() => setIsBugModalOpen(true)}>
-        <Entypo name='bug' size={24} color='#fff' />
-        <Text style={{ ...styles.buttonText, color: '#fff' }}>Reportar um Bug</Text>
+      <TouchableOpacity style={{ ...styles.button, backgroundColor: '#e35e00' }} onPress={() => setIsChangePasswordOpen(true)}>
+        <MaterialCommunityIcons name='key-change' size={24} color='#fff' />
+        <Text style={{ ...styles.buttonText, color: '#fff' }}>Alterar senha</Text>
       </TouchableOpacity>
       <TouchableOpacity style={{
         ...styles.button,
@@ -110,6 +99,10 @@ export function Settings() {
       }} onPress={() => setIsDeleteBudgetsOpen(true)}>
         <Entypo name='new-message' size={24} color='#fff' />
         <Text style={{ ...styles.buttonText, color: '#fff' }}>Recomeçar registros</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={{ ...styles.button, backgroundColor: '#028e4d' }} onPress={() => setIsBugModalOpen(true)}>
+        <Entypo name='bug' size={24} color='#fff' />
+        <Text style={{ ...styles.buttonText, color: '#fff' }}>Reportar um Bug</Text>
       </TouchableOpacity>
       <TouchableOpacity style={{
           ...styles.button,
@@ -139,10 +132,13 @@ export function Settings() {
         <Text style={{ ...styles.buttonText, color: '#fff' }}>GitHub</Text>
       </TouchableOpacity>
 
-      <ConfirmDelete
+      <ChangePasswordModal
+        onClose={() => setIsChangePasswordOpen(false)}
+        onSubmit={handleChangePassword}
+        isOpen={isChangePasswordOpen}
+      />
+      <ConfirmExcludeAccount
         isOpen={isDeleteModalOpen}
-        text={'Você tem certeza que gostaria de deletar sua conta?'}
-        onConfirm={handleDeleteAccount}
         onCancel={() => setIsDeleteModalOpen(false)}
       />
       <ConfirmDelete

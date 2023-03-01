@@ -39,7 +39,7 @@ export function LoadingButton(
       disabled={isDisabled}
       style={
         isDisabled ?
-        [styles.button, styles.disabled] :
+        [onlyPropsStyle ? [...btnStyle, styles.disabled] : [styles.button, styles.disabled]] :
         [onlyPropsStyle ? btnStyle : styles.button, btnStyle]
       }
       onPress={handlePress}
