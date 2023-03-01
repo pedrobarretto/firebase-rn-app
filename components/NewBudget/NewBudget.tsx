@@ -33,7 +33,8 @@ export function NewBudget() {
       }, user.id);
       setRegister({
         values: [...register.values, budget],
-        total: calcTotal(register.total, budget)
+        total: calcTotal(register.total, budget),
+        categories: []
       });
       setBudget(emptyBudget);
       setIsLoading(false);
