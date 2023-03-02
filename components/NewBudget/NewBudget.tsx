@@ -27,14 +27,15 @@ export function NewBudget() {
   const saveData = async () => {
     setIsLoading(true);
     try {
-      await addData({
+      const newBudget = {
         ...budget,
         id: String(uuid.v4())
-      }, user.id);
+      }
+      await addData(newBudget, user.id);
       setRegister({
-        values: [...register.values, budget],
-        total: calcTotal(register.total, budget),
-        categories: []
+        values: [...register.values, newBudget],
+        total: calcTotal(register.total, newBudget),
+        categories: [] // FIXME
       });
       setBudget(emptyBudget);
       setIsLoading(false);

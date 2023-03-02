@@ -26,6 +26,15 @@ export async function addData(budget: Budgets, userId: string) {
     console.log('Cat: ', cat);
     categories.forEach(x => {
       // FIXME: Melhorar essa porra
+      // Posso mudar para:
+      // if (x.type !== budget.type) {
+      //   x.total -= budget.value;
+      //   return categories;
+      // }
+
+      // x.total += budget.value;
+      // return categories;
+
       if (x.category === budget.category) {
         if (x.type === Type.Income && budget.type === Type.Income) {
           x.total += budget.value;
@@ -33,7 +42,7 @@ export async function addData(budget: Budgets, userId: string) {
         }
 
         if (x.type === Type.Spent && budget.type === Type.Spent) {
-          x.total -= budget.value;
+          x.total += budget.value;
           return categories;
         }
 
@@ -60,14 +69,43 @@ export async function addData(budget: Budgets, userId: string) {
 
 export async function deleteBudget(id: string, userId: string) {
   const oldData = await getData(userId);
+  let categories = oldData.categories;
   const [deletedBudget] = oldData.values.filter((x: Budgets) => x.id === id);
   const newData = oldData.values.filter((x: Budgets) => x.id !== id);
+
+  console.log('deletedBudget: ', deletedBudget);
+
+  const categoryCounts: Record<string, number> = oldData.values.reduce((counts: Record<string, number>, item) => {
+    const category = item.category;
+    if (category in counts) {
+      counts[category]++;
+    } else {
+      counts[category] = 1;
+    }
+    return counts;
+  }, {});
+
+  console.log('categoryCounts: ', categoryCounts);
+
+  // Foi deletado o ultimo registro da categoria
+  if (categoryCounts[deletedBudget.category] - 1 === 0) {
+    categories = categories.filter(x => x.category !== deletedBudget.category);
+  } else {
+    // Ainda existem registros com a mesma categoria
+    categories.map(cat => {
+      if (cat.category === deletedBudget.category) {
+        cat.type === Type.Spent ? cat.total -= deletedBudget.value :cat.total += deletedBudget.value;
+      }
+    })
+  }
+
   await setDoc(doc(db, 'budgets', userId), {
     values: [...newData],
     total:
-      newData.length === 0 ?
-      0 :
-      handleCalcTotalOnDeleteBudget(oldData.total, deletedBudget)
+      // newData.length === 0 ?
+      // 0 :
+      handleCalcTotalOnDeleteBudget(oldData.total, deletedBudget),
+    categories
   });
 }
 
