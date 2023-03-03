@@ -67,6 +67,44 @@ export async function addData(budget: Budgets, userId: string) {
   });
 }
 
+export async function deleteBudgetChatGPT(id: string, userId: string) {
+  const oldData = await getData(userId);
+  const [deletedBudget] = oldData.values.filter((x: Budgets) => x.id === id);
+  const newData = oldData.values.filter((x: Budgets) => x.id !== id);
+
+  console.log('deletedBudget: ', deletedBudget);
+
+  // Calculate the updated totals for each category
+  const updatedCategories = oldData.categories.map((category) => {
+    if (category.category === deletedBudget.category) {
+      const typeMultiplier = deletedBudget.type === Type.Spent ? -1 : 1;
+      const updatedTotal = category.total + typeMultiplier * deletedBudget.value;
+      return {
+        ...category,
+        total: updatedTotal,
+      };
+    } else {
+      return category;
+    }
+  });
+
+  // Remove the category if the deleted budget was the last one in that category
+  const categoryCount = newData.reduce((counts: Record<string, number>, item) => {
+    const category = item.category;
+    counts[category] = (counts[category] || 0) + 1;
+    return counts;
+  }, {});
+  const hasRemainingBudgets = categoryCount[deletedBudget.category] > 0;
+  const updatedCategoriesWithoutDeletedCategory = updatedCategories.filter((category) => category.category !== deletedBudget.category);
+
+  // Update the document in Firestore
+  await setDoc(doc(db, 'budgets', userId), {
+    values: [...newData],
+    total: newData.length === 0 ? 0 : handleCalcTotalOnDeleteBudget(oldData.total, deletedBudget),
+    categories: hasRemainingBudgets ? updatedCategories : updatedCategoriesWithoutDeletedCategory,
+  });
+}
+
 export async function deleteBudget(id: string, userId: string) {
   const oldData = await getData(userId);
   let categories = oldData.categories;
@@ -102,8 +140,8 @@ export async function deleteBudget(id: string, userId: string) {
   await setDoc(doc(db, 'budgets', userId), {
     values: [...newData],
     total:
-      // newData.length === 0 ?
-      // 0 :
+      newData.length === 0 ?
+      0 :
       handleCalcTotalOnDeleteBudget(oldData.total, deletedBudget),
     categories
   });
@@ -120,7 +158,7 @@ export async function deleteAllBudgets(userId: string) {
 export function handleCalcTotalOnDeleteBudget(total: number, budget: Budgets) {
   const { value } = budget;
 
-  if (total < 0) return 0;
+  // if (total < 0) return 0;
 
   if (budget.type === Type.Spent) {
     return total + value;

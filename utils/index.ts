@@ -7,3 +7,4 @@ export * from './emptyBudget';
 export * from './mapError';
 export * from './dismissKeyboard';
 export * from './isEmailValid';
+export * from './handleCategories';
