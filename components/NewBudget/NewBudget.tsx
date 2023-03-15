@@ -80,6 +80,7 @@ export function NewBudget() {
   };
 
   const handleCategorie = (item: string) => {
+    console.log('handleCategorie: ', item)
     setBudget({ ...budget, category: item })
   }
 

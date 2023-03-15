@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, StyleSheet, FlatList, TouchableOpacity, Text, Pressable, Keyboard } from 'react-native';
 
 interface Props {
   data: string[];
@@ -15,22 +15,15 @@ export function SearchableDropdown({ data, onItemSelected }: Props) {
     onItemSelected(item);
     setQuery(item);
     setIsDropdownOpen(false);
+    Keyboard.dismiss();
   };
 
-  const handleFilteredData = () => {
+  useEffect(() => {
     const filteredData = data.filter((item) =>
       item.toLowerCase().includes(query.toLowerCase())
     );
 
-    if (filteredData.length === 0) {
-      return [query];
-    }
-
-    return filteredData;
-  }
-
-  useEffect(() => {
-    setFilteredData(handleFilteredData());
+    setFilteredData(filteredData);
   }, [data, query]);
 
   return (
@@ -49,11 +42,11 @@ export function SearchableDropdown({ data, onItemSelected }: Props) {
           data={filteredData}
           keyExtractor={(item) => item}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleSelectItem(item)}>
+            <Pressable onPress={() => handleSelectItem(item)}>
               <View style={styles.item}>
                 <Text>{item}</Text>
               </View>
-            </TouchableOpacity>
+            </Pressable>
           )}
         />
       )}
