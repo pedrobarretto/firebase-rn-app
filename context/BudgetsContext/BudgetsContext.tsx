@@ -15,7 +15,8 @@ export const BudgetsContext = createContext([] as unknown as BudgetsContextData)
 export function BudgetsProvider({ children }: BudgetsProviderProps) {
   const [register, setRegister] = useState<Registers>({
     total: 0,
-    values: []
+    values: [],
+    categories: []
   });
 
   return (

@@ -15,6 +15,8 @@ import { addData, BUDGETS, calcTotal, dismissKeyboard, emptyBudget } from '../..
 import * as rootNavigation from '../../utils';
 import { Entypo } from '@expo/vector-icons';
 import { LoadingButton } from '..';
+import { Picker } from '@react-native-picker/picker';
+import { SearchableDropdown } from '../DropDown/DropDown';
 
 export function NewBudget() {
   const [budget, setBudget] = useState<Budgets>(emptyBudget);
@@ -23,17 +25,25 @@ export function NewBudget() {
   const { setState } = useSnackBar();
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState<string[]>(register.categories.map(cat => cat.category) || []);
+
+  useEffect(() => {
+    console.log(register.categories);
+    setCategories(register.categories.map(cat => cat.category));
+  }, []);
 
   const saveData = async () => {
     setIsLoading(true);
     try {
-      await addData({
+      const newBudget = {
         ...budget,
         id: String(uuid.v4())
-      }, user.id);
+      }
+      await addData(newBudget, user.id);
       setRegister({
-        values: [...register.values, budget],
-        total: calcTotal(register.total, budget)
+        values: [...register.values, newBudget],
+        total: calcTotal(register.total, newBudget),
+        categories: [] // FIXME
       });
       setBudget(emptyBudget);
       setIsLoading(false);
@@ -55,7 +65,6 @@ export function NewBudget() {
     if (
       name.length !== 0 &&
       category.length !== 0 &&
-      category.length !== 0 &&
       type === Type.Income || type === Type.Spent &&
       value >= 1
     ) canSave = false;
@@ -70,6 +79,11 @@ export function NewBudget() {
     setBudget({ ...budget, value: Number(value) });
   };
 
+  const handleCategorie = (item: string) => {
+    console.log('handleCategorie: ', item)
+    setBudget({ ...budget, category: item })
+  }
+
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <KeyboardAvoidingView
@@ -83,12 +97,20 @@ export function NewBudget() {
             onChangeText={(text) => setBudget({ ...budget, name: text })}
             style={styles.input}
           />
-          <TextInput
-            placeholder='Categoria'
-            value={budget.category}
-            onChangeText={(text) => setBudget({ ...budget, category: text })}
+          {/* <Picker
             style={styles.input}
-          />
+            selectedValue={budget.category}
+            onValueChange={(itemValue, itemIndex) =>
+              setBudget({ ...budget, category: itemValue })
+            }>
+              {
+                categories.map((cat, index) => {
+                  console.log('cat: ', cat)
+                  return <Picker.Item key={`${cat}-${index}`} label={cat} value={cat} />
+                })
+              }
+          </Picker> */}
+          <SearchableDropdown data={categories} onItemSelected={handleCategorie} />          
           <TextInput
             placeholder='Valor'
             keyboardType='numeric'
@@ -140,7 +162,7 @@ const styles = StyleSheet.create({
   input: {
     padding:10,
     backgroundColor:'#fff',
-    borderRadius:5,
+    borderRadius: 5,
     paddingVertical: 8,
     width:'90%',
     alignSelf:'center',
@@ -180,5 +202,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
     fontWeight: '600'
+  },
+  picker: {
+    height: 50,
+    width: '90%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 5,
+    marginBottom: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
   }
 });

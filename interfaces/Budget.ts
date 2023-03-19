@@ -12,7 +12,14 @@ export enum Type {
   None = 'None'
 }
 
+export interface Categorie {
+  category: string;
+  total: number;
+  type: Type;
+}
+
 export interface Registers {
   values: Budgets[];
   total: number;
+  categories: Categorie[];
 }

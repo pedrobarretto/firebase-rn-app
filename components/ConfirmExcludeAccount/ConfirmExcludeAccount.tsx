@@ -58,7 +58,7 @@ export function ConfirmExcludeAccount({ onCancel, isOpen }: ConfirmExcludeAccoun
       await auth.currentUser?.delete();
 
       setUser({} as User);
-      setRegister({ values: [], total: 0 });
+      setRegister({ values: [], total: 0, categories: [] });
       setRawUser({} as Firebaseuser);
 
       setIsLoading(false);
