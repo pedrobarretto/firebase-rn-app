@@ -97,19 +97,6 @@ export function NewBudget() {
             onChangeText={(text) => setBudget({ ...budget, name: text })}
             style={styles.input}
           />
-          {/* <Picker
-            style={styles.input}
-            selectedValue={budget.category}
-            onValueChange={(itemValue, itemIndex) =>
-              setBudget({ ...budget, category: itemValue })
-            }>
-              {
-                categories.map((cat, index) => {
-                  console.log('cat: ', cat)
-                  return <Picker.Item key={`${cat}-${index}`} label={cat} value={cat} />
-                })
-              }
-          </Picker> */}
           <SearchableDropdown data={categories} onItemSelected={handleCategorie} />          
           <TextInput
             placeholder='Valor'
