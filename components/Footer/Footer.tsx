@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
-import { BUDGETS, NEW_BUDGETS, SETTINGS } from '../../utils';
+import { MaterialIcons } from '@expo/vector-icons';
+import { BUDGETS, METRICS, NEW_BUDGETS, SETTINGS } from '../../utils';
 import * as rootNavigation from '../../utils';
 import { useUser } from '../../hooks';
 
@@ -22,6 +23,11 @@ export function Footer() {
             <View>
               <Pressable onPress={() => rootNavigation.navigate(NEW_BUDGETS)}>
                 <Ionicons name='add-circle' size={30} color='black' />
+              </Pressable>
+            </View>
+            <View>
+              <Pressable onPress={() => rootNavigation.navigate(METRICS)}>
+              <MaterialIcons name='data-usage' size={30} color='black' />
               </Pressable>
             </View>
             <View>

@@ -15,7 +15,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback } from 'react-native';
-import { LoadingButton } from '..';
+import { LoadingButton } from '../../components';
 import { auth, db } from '../../config';
 import { useSnackBar, useUser } from '../../hooks';
 import { User } from '../../interfaces';

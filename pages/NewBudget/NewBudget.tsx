@@ -14,9 +14,9 @@ import { useRegisters, useSnackBar, useUser } from '../../hooks';
 import { addData, BUDGETS, calcTotal, dismissKeyboard, emptyBudget } from '../../utils';
 import * as rootNavigation from '../../utils';
 import { Entypo } from '@expo/vector-icons';
-import { LoadingButton } from '..';
+import { LoadingButton } from '../../components';
 import { Picker } from '@react-native-picker/picker';
-import { SearchableDropdown } from '../DropDown/DropDown';
+import { SearchableDropdown } from '../../components/DropDown/DropDown';
 
 export function NewBudget() {
   const [budget, setBudget] = useState<Budgets>(emptyBudget);

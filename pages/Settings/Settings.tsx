@@ -10,11 +10,11 @@ import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { addDoc, collection, deleteDoc, doc } from 'firebase/firestore';
 import { useState } from 'react';
-import { BugReportModal, ConfirmDelete } from '..';
+import { BugReportModal, ConfirmDelete } from '../../components';
 import { AntDesign } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { updatePassword } from 'firebase/auth';
-import { ChangePasswordModal, ConfirmExcludeAccount } from '..';
+import { ChangePasswordModal, ConfirmExcludeAccount } from '../../components';
 import { FirebaseError } from 'firebase/app';
 
 export function Settings() {
@@ -28,7 +28,7 @@ export function Settings() {
 
   const handleLogout = () => {
     setUser({} as User);
-    setRegister({ values: [], total: 0 });
+    setRegister({ values: [], total: 0, categories: [] });
     signOut(auth);
     rootNavigation.navigate(HOME);
   }
@@ -56,7 +56,7 @@ export function Settings() {
 
   const handleDeleteRecords = async () => {
     await deleteAllBudgets(user.id);
-    setRegister({ values: [], total: 0 });
+    setRegister({ values: [], total: 0, categories: [] });
     setIsDeleteBudgetsOpen(false);
   }
 

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useEffect } from 'react';
 import { useRegisters, useSnackBar, useUser } from '../../hooks';
-import { Budget } from './Budget';
+import { Budget } from '../../components/Budgets/Budget';
 import { currencyFormat, getData } from '../../utils';
 
 export function BudgetsPage({ navigation }: any) {
