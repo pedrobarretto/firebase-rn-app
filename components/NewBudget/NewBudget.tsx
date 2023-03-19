@@ -97,12 +97,6 @@ export function NewBudget() {
             onChangeText={(text) => setBudget({ ...budget, name: text })}
             style={styles.input}
           />
-          {/* <TextInput
-            placeholder='Categoria'
-            value={budget.category}
-            onChangeText={(text) => setBudget({ ...budget, category: text })}
-            style={styles.input}
-          /> */}
           {/* <Picker
             style={styles.input}
             selectedValue={budget.category}

@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, TextInput, StyleSheet, FlatList, TouchableOpacity, Text, Pressable, Keyboard } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Text,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 
 interface Props {
   data: string[];
@@ -10,6 +19,7 @@ export function SearchableDropdown({ data, onItemSelected }: Props) {
   const [query, setQuery] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filteredData, setFilteredData] = useState<string[]>([]);
+  const flatListRef = useRef<FlatList>(null);
 
   const handleSelectItem = (item: string) => {
     onItemSelected(item);
@@ -22,37 +32,44 @@ export function SearchableDropdown({ data, onItemSelected }: Props) {
     const filteredData = data.filter((item) =>
       item.toLowerCase().includes(query.toLowerCase())
     );
-
     setFilteredData(filteredData);
   }, [data, query]);
+
+  const handleListPress = () => {
+    Keyboard.dismiss();
+  };
 
   return (
     <>
       <TextInput
-        style={[ styles.input, { marginBottom: isDropdownOpen ? 0 : '5%' } ]}
-        placeholder='Escolha uma categoria'
+        style={[styles.input, { marginBottom: isDropdownOpen ? 0 : '5%' }]}
+        placeholder="Escolha uma categoria"
         value={query}
         onChangeText={setQuery}
         onFocus={() => setIsDropdownOpen(true)}
         onBlur={() => setIsDropdownOpen(false)}
       />
       {isDropdownOpen && (
-        <FlatList
-          style={[ styles.list, { marginBottom: isDropdownOpen ? '5%' : 0 } ]}
-          data={filteredData}
-          keyExtractor={(item) => item}
-          renderItem={({ item }) => (
-            <Pressable onPress={() => handleSelectItem(item)}>
-              <View style={styles.item}>
-                <Text>{item}</Text>
-              </View>
-            </Pressable>
-          )}
-        />
+        <TouchableWithoutFeedback onPress={handleListPress}>
+          <FlatList
+            style={[styles.list, { marginBottom: isDropdownOpen ? '5%' : 0 }]}
+            data={filteredData}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => handleSelectItem(item)}>
+                <View style={styles.item}>
+                  <Text>{item}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            ref={flatListRef}
+            keyboardShouldPersistTaps="handled"
+          />
+        </TouchableWithoutFeedback>
       )}
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   item: {
