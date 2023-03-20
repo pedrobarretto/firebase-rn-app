@@ -11,7 +11,7 @@ import {
 import { Budgets, Type } from '../../interfaces/Budget';
 import uuid from 'react-native-uuid';
 import { useRegisters, useSnackBar, useUser } from '../../hooks';
-import { addData, BUDGETS, calcTotal, dismissKeyboard, emptyBudget } from '../../utils';
+import { addData, BUDGETS, calcTotal, dismissKeyboard, emptyBudget, updateCategories } from '../../utils';
 import * as rootNavigation from '../../utils';
 import { Entypo } from '@expo/vector-icons';
 import { LoadingButton } from '../../components';
@@ -40,10 +40,11 @@ export function NewBudget() {
         id: String(uuid.v4())
       }
       await addData(newBudget, user.id);
+      const categories = await updateCategories(newBudget, user.id);
       setRegister({
         values: [...register.values, newBudget],
         total: calcTotal(register.total, newBudget),
-        categories: [] // FIXME
+        categories
       });
       setBudget(emptyBudget);
       setIsLoading(false);
@@ -80,7 +81,6 @@ export function NewBudget() {
   };
 
   const handleCategorie = (item: string) => {
-    console.log('handleCategorie: ', item)
     setBudget({ ...budget, category: item })
   }
 

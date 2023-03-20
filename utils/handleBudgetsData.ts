@@ -14,7 +14,7 @@ export async function getData(id: string): Promise<Registers> {
   }
 }
 
-export async function addData(budget: Budgets, userId: string) {
+export async function updateCategories(budget: Budgets, userId: string) {
   const oldData = await getData(userId);
   let categories: Categorie[] = [...oldData.categories];
 
@@ -50,10 +50,17 @@ export async function addData(budget: Budgets, userId: string) {
         return categories;
       }
     });
+
+    return categories;
   } else {
     console.log('Categorie does not exist. Will create it...')
-    categories = [...categories, { category: budget.category, total: budget.value, type: budget.type}];
+    return [...categories, { category: budget.category, total: budget.value, type: budget.type}];
   }
+}
+
+export async function addData(budget: Budgets, userId: string) {
+  const oldData = await getData(userId);
+  const categories = await updateCategories(budget, userId);
 
   await setDoc(doc(db, 'budgets', userId), {
     total: budget.type === Type.Income?

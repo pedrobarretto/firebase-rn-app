@@ -22,7 +22,9 @@ export function SearchableDropdown({ data, onItemSelected }: Props) {
   const flatListRef = useRef<FlatList>(null);
 
   const handleSelectItem = (item: string) => {
-    onItemSelected(item);
+    console.log('item:', item);
+    console.log('item.length === 0 ? query : item: ', item.length === 0 ? query : item)    
+    onItemSelected(item.length === 0 ? query : item);
     setQuery(item);
     setIsDropdownOpen(false);
     Keyboard.dismiss();
@@ -39,11 +41,16 @@ export function SearchableDropdown({ data, onItemSelected }: Props) {
     Keyboard.dismiss();
   };
 
+  useEffect(() => {
+    console.log('query: ', query);
+    onItemSelected(query);
+  }, [query])
+
   return (
     <>
       <TextInput
         style={[styles.input, { marginBottom: isDropdownOpen ? 0 : '5%' }]}
-        placeholder="Escolha uma categoria"
+        placeholder='Escolha uma categoria'
         value={query}
         onChangeText={setQuery}
         onFocus={() => setIsDropdownOpen(true)}
@@ -63,7 +70,7 @@ export function SearchableDropdown({ data, onItemSelected }: Props) {
               </TouchableOpacity>
             )}
             ref={flatListRef}
-            keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps='handled'
           />
         </TouchableWithoutFeedback>
       )}
@@ -91,7 +98,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     width:'90%',
     alignSelf:'center',
-    textAlign:"left",
+    textAlign:'left',
     justifyContent:'center'
   }
 });
