@@ -4,7 +4,8 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  User as FirebaseUser } from 'firebase/auth';
+  User as FirebaseUser,
+} from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
@@ -14,12 +15,18 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback } from 'react-native';
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { LoadingButton } from '..';
 import { auth, db } from '../../config';
 import { useSnackBar, useUser } from '../../hooks';
 import { User } from '../../interfaces';
-import { BUDGETS, dismissKeyboard, isEmailValid, mapErrorCodeToMessage } from '../../utils';
+import {
+  BUDGETS,
+  dismissKeyboard,
+  isEmailValid,
+  mapErrorCodeToMessage,
+} from '../../utils';
 
 export function Home({ navigation }: any) {
   const [email, setEmail] = useState<string>('');
@@ -37,14 +44,18 @@ export function Home({ navigation }: any) {
         console.log(`Setting user ${user.email}`);
         // FIXME: Fix createdAt prop
         setRawUser(user);
-        setUser({ email: String(user.email), id: user.uid, createdAt: new Date() });
+        setUser({
+          email: String(user.email),
+          id: user.uid,
+          createdAt: new Date(),
+        });
         navigation.navigate(BUDGETS);
       } else {
-        console.log('Not logged in')
+        console.log('Not logged in');
         setUser({} as User);
         setRawUser({} as FirebaseUser);
       }
-    })
+    });
   }, []);
 
   const signUp = async () => {
@@ -55,7 +66,7 @@ export function Home({ navigation }: any) {
       await setDoc(doc(db, 'users', info.user.uid), {
         email,
         createdAt,
-        id: info.user.uid
+        id: info.user.uid,
       });
       setUser({ id: info.user.uid, email, createdAt });
       console.log(info);
@@ -65,12 +76,12 @@ export function Home({ navigation }: any) {
         setState({
           isSnackBarOpen: true,
           message: mapErrorCodeToMessage(error.code),
-          type: 'error'
+          type: 'error',
         });
       }
     }
     setIsRegisterLoading(false);
-  }
+  };
 
   const login = async () => {
     setIsLoginLoading(true);
@@ -82,13 +93,13 @@ export function Home({ navigation }: any) {
         setState({
           isSnackBarOpen: true,
           message: mapErrorCodeToMessage(error.code),
-          type: 'error'
+          type: 'error',
         });
       }
     }
     setIsLoginLoading(false);
-  }
-  
+  };
+
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <KeyboardAvoidingView
@@ -101,8 +112,8 @@ export function Home({ navigation }: any) {
             value={email}
             onChangeText={(text) => setEmail(text)}
             style={styles.input}
-            />
-          <TextInput 
+          />
+          <TextInput
             placeholder='Senha'
             value={password}
             onChangeText={(text) => setPassword(text)}
@@ -113,7 +124,7 @@ export function Home({ navigation }: any) {
             title='Cadastrar'
             onPress={signUp}
             isDisabled={email.length === 0 || password.length === 0}
-            btnStyle={{ backgroundColor: '#e35e00'  }}
+            btnStyle={{ backgroundColor: '#e35e00' }}
             textStyle={{ color: '#fff' }}
             isLoading={isRegisterLoading}
           />
@@ -121,22 +132,16 @@ export function Home({ navigation }: any) {
             title='Login'
             onPress={login}
             isDisabled={email.length === 0 || password.length === 0}
-            btnStyle={{ backgroundColor: '#e35e00'  }}
+            btnStyle={{ backgroundColor: '#e35e00' }}
             textStyle={{ color: '#fff' }}
             isLoading={isLoginLoading}
           />
-          {
-            (
-              error !== '' && (
-                <Text>{error}</Text>
-              )
-            )
-          }
-          <StatusBar style="auto" />
+          {error !== '' && <Text>{error}</Text>}
+          <StatusBar style='auto' />
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -144,7 +149,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '90%'
+    width: '90%',
   },
   keyBoardAvoidContainer: {
     flex: 1,
@@ -152,15 +157,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   input: {
-    padding:10,
+    padding: 10,
     backgroundColor: '#fff',
-    borderRadius:5,
+    borderRadius: 5,
     paddingVertical: 8,
-    width:'80%',
+    width: '80%',
     height: 50,
-    alignSelf:'center',
-    textAlign:"left",
-    justifyContent:'center',
+    alignSelf: 'center',
+    textAlign: 'left',
+    justifyContent: 'center',
     marginBottom: '5%',
     elevation: Platform.OS === 'ios' ? 2 : 3,
     shadowColor: '#000',
@@ -170,5 +175,5 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.5,
     shadowRadius: 3.84,
-  }
+  },
 });
